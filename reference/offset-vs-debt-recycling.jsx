@@ -193,22 +193,22 @@ export default function App() {
   const [mode, setMode] = useState("dark");
   const t = themes[mode];
 
-  const [loan, setLoan] = useState(925000);
-  const [rate, setRate] = useState(5.7);
-  const [years, setYears] = useState(15);
-  const [etfReturn, setEtfReturn] = useState(8.5);
-  const [divYield, setDivYield] = useState(2.5);
-  const [margTax, setMargTax] = useState(47);
-  const [cgtDiscount, setCgtDiscount] = useState(50);
-  const [amountsStr, setAmountsStr] = useState("50000,100000,150000,200000,250000,300000");
+  const [loan, setLoan] = useState(0);
+  const [rate, setRate] = useState(0);
+  const [years, setYears] = useState(0);
+  const [etfReturn, setEtfReturn] = useState(0);
+  const [divYield, setDivYield] = useState(0);
+  const [margTax, setMargTax] = useState(0);
+  const [cgtDiscount, setCgtDiscount] = useState(50); // ATO rule: 50% for assets held >12 months
+  const [amountsStr, setAmountsStr] = useState("");
 
   const amounts = useMemo(() =>
     amountsStr.split(",").map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n > 0),
     [amountsStr]
   );
 
-  const [selectedAmount, setSelectedAmount] = useState(150000);
-  const [viewYear, setViewYear] = useState(5);
+  const [selectedAmount, setSelectedAmount] = useState(0);
+  const [viewYear, setViewYear] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const results = useMemo(() => {
