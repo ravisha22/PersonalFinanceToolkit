@@ -10,6 +10,7 @@ import { formatCurrency, formatCompact, formatPct } from '../../utils/formatters
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
+import { usePortfolio } from '../../context/PortfolioContext';
 
 const DEFAULT_SCENARIOS: ScenarioParams[] = [
   { label: 'ETF (Taxable)', initial: 50000, monthlyContribution: 1000, annualReturn: 8, mer: 0.07, taxTreatment: 'marginal', marginalRate: 0.32 },
@@ -32,9 +33,26 @@ const ASSUMPTIONS = [
 ];
 
 export function InvestmentCompare() {
-  const [scenarios, setScenarios] = useState<ScenarioParams[]>(DEFAULT_SCENARIOS);
+  const { portfolio } = usePortfolio();
+  const [scenarios, setScenarios] = useState<ScenarioParams[]>(() => [
+    {
+      ...DEFAULT_SCENARIOS[0],
+      initial: portfolio.etfValue > 0 ? portfolio.etfValue : DEFAULT_SCENARIOS[0].initial,
+      monthlyContribution: portfolio.monthlyEtfContrib > 0 ? portfolio.monthlyEtfContrib : DEFAULT_SCENARIOS[0].monthlyContribution,
+    },
+    {
+      ...DEFAULT_SCENARIOS[1],
+      initial: portfolio.superBalance > 0 ? portfolio.superBalance : DEFAULT_SCENARIOS[1].initial,
+      monthlyContribution: portfolio.monthlySuperContrib > 0 ? portfolio.monthlySuperContrib : DEFAULT_SCENARIOS[1].monthlyContribution,
+    },
+    {
+      ...DEFAULT_SCENARIOS[2],
+      initial: portfolio.savingsBalance > 0 ? portfolio.savingsBalance : DEFAULT_SCENARIOS[2].initial,
+      monthlyContribution: portfolio.monthlySavingsContrib > 0 ? portfolio.monthlySavingsContrib : DEFAULT_SCENARIOS[2].monthlyContribution,
+    },
+  ]);
   const [years, setYears] = useState(20);
-  const [sharedMarginalRate, setSharedMarginalRate] = useState(32);
+  const [sharedMarginalRate, setSharedMarginalRate] = useState(() => portfolio.margTax > 0 ? portfolio.margTax : 32);
 
   const updateScenario = (i: number, updates: Partial<ScenarioParams>) => {
     setScenarios(prev => prev.map((s, idx) => idx === i ? { ...s, ...updates } : s));
@@ -117,7 +135,7 @@ export function InvestmentCompare() {
                 className="text-sm font-bold bg-transparent border-none outline-none text-slate-800 dark:text-slate-100 w-full"
                 placeholder="Scenario name"
               />
-              {scenarios.length > 1 && (
+              {scenarios.length > 1 && i >= DEFAULT_SCENARIOS.length && (
                 <button onClick={() => removeScenario(i)} className="text-xs text-red-400 hover:text-red-600 shrink-0 ml-2">Remove</button>
               )}
             </div>

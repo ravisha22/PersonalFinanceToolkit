@@ -21,12 +21,13 @@
 | v0.11.0 | Phase 11   | Calculator: Property Research Tool | Pushed |
 | v1.0.0  | Phase 12   | README, LICENSE, CONTRIBUTING, GitHub Actions deploy | Pushed |
 | v1.1.0  | Post-v1    | UX polish: dark mode fix, branding rename, default reset, AboutCalc, output explanations, IO/PI toggle, DR framing | Pushed |
+| v1.2.0  | Post-v1    | Portfolio view, gear icon, light mode contrast, Investment lock, nav reorder/rerename, DR text removal | Pushed |
 
 ---
 
-## PROJECT COMPLETE — v1.1.0
+## PROJECT COMPLETE — v1.2.0
 
-All 12 phases delivered + v1.1.0 UX polish. 8 calculators live.
+All 12 phases delivered + v1.1.0 and v1.2.0 UX polish. 9 views (Portfolio + 8 calculators) live.
 
 ### v1.1.0 Changes (post-v1.0)
 
@@ -96,3 +97,36 @@ All 12 phases delivered + v1.1.0 UX polish. 8 calculators live.
 - Inflation-adjusted projections
 - Variable rate scenarios
 - FIRE: sequence-of-returns risk modelling
+
+---
+
+## v1.2.0 — COMPLETE
+
+### Fixes
+
+**Fix 1 — Gear icon for settings (Offset vs Debt Recycling)**
+- Heroicons cog SVG + "Settings"/"Close" text in top-right of card header. Replaces external toggle button. Settings panel expands inline.
+
+**Fix 2 — Light mode contrast (elegant, not jarring)**
+- Page bg: `bg-slate-50` → `bg-slate-100`; card borders: `→ border-slate-300`; label text: `text-slate-400` → `text-slate-500`; stat cards add `shadow-sm`
+
+**Fix 3 — Portfolio view (new first view)**
+- `src/pages/Portfolio.tsx` + `src/context/PortfolioContext.tsx` (session-only React Context, no localStorage)
+- Sections: Income & Tax, Cash & Savings, Mortgage, Investments, Superannuation, Expenses (17 itemised categories)
+- Footer CTA: "→ Continue to Tax Savings"
+- All 7 downstream calculators consume context as optional initial defaults (fall back to built-in defaults when portfolio is 0)
+- Wired: TaxSavingsGuide (salary + margTax + mortgageBalance + mortgageRate), FIREDashboard (savingsBalance+etfValue, monthlySavingsContrib×12, superBalance), SavingsRate (grossSalary, savingsBalance+etfValue), HouseAffordability (grossSalary, savingsBalance, propertyValue, mortgageRate, mortgageYearsRemaining), InvestmentCompare (3 scenarios pre-filled from etfValue/superBalance/savingsBalance + monthlys), OffsetVsDR (mortgageBalance, mortgageRate, mortgageYearsRemaining, etfReturn, margTax), DirectVsDR (etfValue, etfReturn, mortgageRate, margTax)
+
+**Fix 4 — Investment Comparison: lock default scenarios**
+- Remove button hidden for default 3 scenarios; only user-added 4th can be removed (`i >= DEFAULT_SCENARIOS.length`)
+
+**Fix 5 — Navigation reorder + route renames**
+- `/offset-vs-dr` → `/offset-vs-debt-recycling`; `/direct-vs-dr` → `/direct-vs-debt-recycling`; old routes get `<Navigate replace />`
+- Nav order: Portfolio → Tax Savings → Savings Rate → FIRE → Investment Comparison → House Affordability → Property Research → Offset vs Debt Recycling → Direct vs Debt Recycling
+
+**Fix 6 — Remove "DR" abbreviation everywhere**
+- All user-facing text uses "Debt Recycling" in full (OffsetVsDR.tsx and DirectVsDR.tsx updated; internal file names unchanged)
+
+### Also added
+- `docs/PersonaFlowAnalysis.md` — market research document with real ATO/APRA/ABS/BetaShares data, 7 persona definitions, tool relevance matrix, recommended nav order rationale
+

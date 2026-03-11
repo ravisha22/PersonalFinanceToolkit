@@ -22,6 +22,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
+import { usePortfolio } from '../../context/PortfolioContext';
 
 const DEFAULTS = {
   amount: 200000,
@@ -44,7 +45,16 @@ const ASSUMPTIONS = [
 ];
 
 export function DirectVsDR() {
-  const [params, setParams] = useUrlParams(DEFAULTS);
+  const { portfolio } = usePortfolio();
+  const [params, setParams] = useUrlParams({
+    amount: portfolio.etfValue > 0 ? portfolio.etfValue : DEFAULTS.amount,
+    etfReturn: portfolio.etfReturn > 0 ? portfolio.etfReturn : DEFAULTS.etfReturn,
+    divYield: DEFAULTS.divYield,
+    mortgageRate: portfolio.mortgageRate > 0 ? portfolio.mortgageRate : DEFAULTS.mortgageRate,
+    margTax: portfolio.margTax > 0 ? portfolio.margTax : DEFAULTS.margTax,
+    cgtDiscount: DEFAULTS.cgtDiscount,
+    years: DEFAULTS.years,
+  });
 
   const margTaxDecimal = params.margTax / 100;
   const cgtDiscountDecimal = params.cgtDiscount / 100;
@@ -107,7 +117,7 @@ export function DirectVsDR() {
       <AboutCalc concepts={[
         {
           term: 'Why does Debt Recycling show lower net wealth early on?',
-          definition: 'DR uses an interest-only loan. Your net wealth = portfolio value MINUS the loan you still owe. With $200k invested: direct = $224k portfolio (no debt). DR = $224k portfolio minus $200k loan = ~$24k. This is correct — DR only outperforms once cumulative tax deductions compound enough. Check the breakeven ETF return callout below to see if your expected return clears the hurdle.',
+          definition: 'Debt Recycling uses an interest-only loan. Your net wealth = portfolio value MINUS the loan you still owe. With $200k invested: direct = $224k portfolio (no debt). Debt Recycling = $224k portfolio minus $200k loan = ~$24k. This is correct — Debt Recycling only outperforms once cumulative tax deductions compound enough. Check the breakeven ETF return callout below to see if your expected return clears the hurdle.',
           link: 'https://www.ato.gov.au/individuals-and-families/investments-and-assets/interest-deductions-and-borrowing-expenses',
           linkLabel: 'ATO: Interest deductions on investment loans',
         },
@@ -220,7 +230,7 @@ export function DirectVsDR() {
 
       {/* Summary Stat Cards */}
       <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
-        <strong className="text-slate-700 dark:text-slate-300">Direct Final Value</strong> = portfolio value (no debt). <strong className="text-slate-700 dark:text-slate-300">DR Final Value</strong> = portfolio value (same growth). <strong className="text-slate-700 dark:text-slate-300">DR Net Wealth</strong> = portfolio minus the outstanding IO loan balance minus CGT — this is why DR looks worse short-term. <strong className="text-slate-700 dark:text-slate-300">DR Advantage</strong> is only positive once tax deductions have compounded enough to overcome the debt.{' '}
+        <strong className="text-slate-700 dark:text-slate-300">Direct Final Value</strong> = portfolio value (no debt). <strong className="text-slate-700 dark:text-slate-300">Debt Recycling Final Value</strong> = portfolio value (same growth). <strong className="text-slate-700 dark:text-slate-300">Debt Recycling Net Wealth</strong> = portfolio minus the outstanding IO loan balance minus CGT — this is why Debt Recycling looks worse short-term. <strong className="text-slate-700 dark:text-slate-300">Debt Recycling Advantage</strong> is only positive once tax deductions have compounded enough to overcome the debt.{' '}
         <a href="https://moneysmart.gov.au/managing-debt/investment-debt" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">MoneySmart: Investment debt ↗</a>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -231,19 +241,19 @@ export function DirectVsDR() {
           subtext={`Net: ${formatCompact(direct.netWealthAfterCGT)} after CGT`}
         />
         <StatCard
-          label={`DR — Final Value (${params.years} yr)`}
+          label={`Debt Recycling — Final Value (${params.years} yr)`}
           value={formatCompact(dr.finalValue)}
           color="blue"
           subtext={`Net: ${formatCompact(dr.netWealthAfterCGT)} after CGT & loan`}
         />
         <StatCard
-          label="DR Advantage (net wealth)"
+          label="Debt Recycling Advantage (net wealth)"
           value={`${dr.netWealthAfterCGT >= direct.netWealthAfterCGT ? '+' : ''}${formatCompact(dr.netWealthAfterCGT - direct.netWealthAfterCGT)}`}
           color={drWins ? 'green' : 'red'}
           subtext={drWins ? 'DR wins' : 'Direct wins'}
         />
         <StatCard
-          label="DR Tax Deductions"
+          label="Debt Recycling Tax Deductions"
           value={formatCompact(dr.totalTaxDeductions)}
           color="purple"
           subtext={`Net interest cost: ${formatCompact(dr.netInterestCost)}`}
@@ -254,7 +264,7 @@ export function DirectVsDR() {
           color="amber"
         />
         <StatCard
-          label="DR CGT if Sold"
+          label="Debt Recycling CGT if Sold"
           value={formatCompact(dr.cgtIfSold)}
           color="cyan"
           subtext={`Direct CGT: ${formatCompact(direct.cgtIfSold)}`}
@@ -292,7 +302,7 @@ export function DirectVsDR() {
 
       {/* After-tax cost of leverage */}
       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl px-5 py-3 text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-        <strong>After-tax cost of DR leverage:</strong>{' '}
+        <strong>After-tax cost of Debt Recycling leverage:</strong>{' '}
         <span className="font-mono text-blue-600 dark:text-blue-400">{formatPct(breakeven)}</span>
         {' '}per year ({formatPct(params.mortgageRate)} x (1 - {params.margTax}%)).
         {' '}Total interest paid over {params.years} years:{' '}

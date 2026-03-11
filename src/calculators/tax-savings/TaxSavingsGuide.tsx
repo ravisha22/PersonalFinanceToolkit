@@ -7,6 +7,7 @@ import { SuperSalarySacrifice } from './SuperSalarySacrifice';
 import { DebtRecyclingTax } from './DebtRecyclingTax';
 import { NegativeGearing } from './NegativeGearing';
 import { TaxBracketVis } from './TaxBracketVis';
+import { usePortfolio } from '../../context/PortfolioContext';
 
 const TABS = [
   { id: 'super', label: 'Super Sacrifice' },
@@ -44,11 +45,12 @@ const ASSUMPTIONS: Record<string, string[]> = {
 };
 
 export function TaxSavingsGuide() {
+  const { portfolio } = usePortfolio();
   const [activeTab, setActiveTab] = useState('super');
-  const [grossSalary, setGrossSalary] = useState(85000);
-  const [investLoanBal, setInvestLoanBal] = useState(300000);
-  const [rate, setRate] = useState(6.0);
-  const [margTax, setMargTax] = useState(34.5);
+  const [grossSalary, setGrossSalary] = useState(() => portfolio.grossSalary > 0 ? portfolio.grossSalary : 85000);
+  const [investLoanBal, setInvestLoanBal] = useState(() => portfolio.mortgageBalance > 0 ? portfolio.mortgageBalance : 300000);
+  const [rate, setRate] = useState(() => portfolio.mortgageRate > 0 ? portfolio.mortgageRate : 6.0);
+  const [margTax, setMargTax] = useState(() => portfolio.margTax > 0 ? portfolio.margTax : 34.5);
 
   return (
     <div className="space-y-6">

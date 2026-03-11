@@ -27,15 +27,15 @@ const VALUE_COLORS: Record<StatColor, string> = {
 
 export function StatCard({ label, value, color = 'blue', subtext }: StatCardProps) {
   return (
-    <div className={`bg-slate-100 dark:bg-slate-800 border-l-4 ${BORDER_COLORS[color]} rounded-md px-4 py-3`}>
-      <div className="text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500 font-medium mb-1">
+    <div className={`bg-slate-100 dark:bg-slate-800 border-l-4 ${BORDER_COLORS[color]} rounded-md px-4 py-3 shadow-sm`}>
+      <div className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-500 font-medium mb-1">
         {label}
       </div>
       <div className={`text-lg font-bold font-mono ${VALUE_COLORS[color]}`}>
         {value}
       </div>
       {subtext && (
-        <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{subtext}</div>
+        <div className="text-[11px] text-slate-500 dark:text-slate-500 mt-0.5">{subtext}</div>
       )}
     </div>
   );

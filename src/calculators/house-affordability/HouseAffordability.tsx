@@ -10,6 +10,7 @@ import { Disclaimer } from '../../components/shared/Disclaimer';
 import { AboutCalc } from '../../components/shared/AboutCalc';
 import { calculateAffordability, type AustralianState } from './engine';
 import { formatCurrency, formatPercent, formatPct } from '../../utils/formatters';
+import { usePortfolio } from '../../context/PortfolioContext';
 
 const DEFAULTS = {
   grossIncome: 100000,
@@ -36,17 +37,18 @@ const ASSUMPTIONS = [
 ];
 
 export function HouseAffordability() {
+  const { portfolio } = usePortfolio();
   const [params, setParams] = useUrlParams({
-    grossIncome: DEFAULTS.grossIncome,
+    grossIncome: portfolio.grossSalary > 0 ? portfolio.grossSalary : DEFAULTS.grossIncome,
     partnerIncome: DEFAULTS.partnerIncome,
     existingMonthlyDebts: DEFAULTS.existingMonthlyDebts,
-    deposit: DEFAULTS.deposit,
-    propertyPrice: DEFAULTS.propertyPrice,
+    deposit: portfolio.savingsBalance > 0 ? portfolio.savingsBalance : DEFAULTS.deposit,
+    propertyPrice: portfolio.propertyValue > 0 ? portfolio.propertyValue : DEFAULTS.propertyPrice,
     state: DEFAULTS.state as string,
     firstHomeBuyer: DEFAULTS.firstHomeBuyer,
     isNewHome: DEFAULTS.isNewHome,
-    rate: DEFAULTS.rate,
-    loanTerm: DEFAULTS.loanTerm,
+    rate: portfolio.mortgageRate > 0 ? portfolio.mortgageRate : DEFAULTS.rate,
+    loanTerm: portfolio.mortgageYearsRemaining > 0 ? portfolio.mortgageYearsRemaining : DEFAULTS.loanTerm,
   });
 
   const result = useMemo(

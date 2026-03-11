@@ -8,6 +8,7 @@ import { CoastFIRE } from './CoastFIRE';
 import { BaristaFIRE } from './BaristaFIRE';
 import { LeanVsFat } from './LeanVsFat';
 import { SuperBridge } from './SuperBridge';
+import { usePortfolio } from '../../context/PortfolioContext';
 
 const TABS = [
   { id: 'classic', label: 'Classic FIRE' },
@@ -28,12 +29,23 @@ const ASSUMPTIONS = [
 ];
 
 export function FIREDashboard() {
+  const { portfolio } = usePortfolio();
   const [activeTab, setActiveTab] = useState('classic');
   const [currentAge, setCurrentAge] = useState(35);
-  const [currentInvestments, setCurrentInvestments] = useState(200000);
-  const [annualSavings, setAnnualSavings] = useState(50000);
+  const [currentInvestments, setCurrentInvestments] = useState(() =>
+    (portfolio.savingsBalance + portfolio.etfValue) > 0
+      ? portfolio.savingsBalance + portfolio.etfValue
+      : 200000
+  );
+  const [annualSavings, setAnnualSavings] = useState(() =>
+    portfolio.monthlySavingsContrib > 0
+      ? portfolio.monthlySavingsContrib * 12
+      : 50000
+  );
   const [returnRate, setReturnRate] = useState(7);
-  const [superBalance, setSuperBalance] = useState(150000);
+  const [superBalance, setSuperBalance] = useState(() =>
+    portfolio.superBalance > 0 ? portfolio.superBalance : 150000
+  );
 
   return (
     <div className="space-y-6">

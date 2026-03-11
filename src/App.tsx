@@ -1,18 +1,20 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { Landing } from './pages/Landing';
+import { PortfolioProvider } from './context/PortfolioContext';
 
 // Calculators — each lazy-imported to keep initial bundle small
 import { lazy, Suspense } from 'react';
 
-const OffsetVsDR        = lazy(() => import('./calculators/offset-vs-dr/OffsetVsDR').then(m => ({ default: m.OffsetVsDR })));
-const DirectVsDR        = lazy(() => import('./calculators/direct-vs-dr/DirectVsDR').then(m => ({ default: m.DirectVsDR })));
-const TaxSavingsGuide   = lazy(() => import('./calculators/tax-savings/TaxSavingsGuide').then(m => ({ default: m.TaxSavingsGuide })));
-const HouseAffordability = lazy(() => import('./calculators/house-affordability/HouseAffordability').then(m => ({ default: m.HouseAffordability })));
-const FIREDashboard     = lazy(() => import('./calculators/fire/FIREDashboard').then(m => ({ default: m.FIREDashboard })));
-const InvestmentCompare = lazy(() => import('./calculators/investment-compare/InvestmentCompare').then(m => ({ default: m.InvestmentCompare })));
-const SavingsRate       = lazy(() => import('./calculators/savings-rate/SavingsRate').then(m => ({ default: m.SavingsRate })));
-const PropertyResearch  = lazy(() => import('./calculators/property-research/PropertyResearch').then(m => ({ default: m.PropertyResearch })));
+const Portfolio           = lazy(() => import('./pages/Portfolio').then(m => ({ default: m.Portfolio })));
+const OffsetVsDR          = lazy(() => import('./calculators/offset-vs-dr/OffsetVsDR').then(m => ({ default: m.OffsetVsDR })));
+const DirectVsDR          = lazy(() => import('./calculators/direct-vs-dr/DirectVsDR').then(m => ({ default: m.DirectVsDR })));
+const TaxSavingsGuide     = lazy(() => import('./calculators/tax-savings/TaxSavingsGuide').then(m => ({ default: m.TaxSavingsGuide })));
+const HouseAffordability  = lazy(() => import('./calculators/house-affordability/HouseAffordability').then(m => ({ default: m.HouseAffordability })));
+const FIREDashboard       = lazy(() => import('./calculators/fire/FIREDashboard').then(m => ({ default: m.FIREDashboard })));
+const InvestmentCompare   = lazy(() => import('./calculators/investment-compare/InvestmentCompare').then(m => ({ default: m.InvestmentCompare })));
+const SavingsRate         = lazy(() => import('./calculators/savings-rate/SavingsRate').then(m => ({ default: m.SavingsRate })));
+const PropertyResearch    = lazy(() => import('./calculators/property-research/PropertyResearch').then(m => ({ default: m.PropertyResearch })));
 
 function PageLoader() {
   return (
@@ -32,18 +34,26 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <Landing /> },
-      { path: 'offset-vs-dr',        element: <Wrap><OffsetVsDR /></Wrap> },
-      { path: 'direct-vs-dr',        element: <Wrap><DirectVsDR /></Wrap> },
-      { path: 'tax-savings',         element: <Wrap><TaxSavingsGuide /></Wrap> },
-      { path: 'house-affordability', element: <Wrap><HouseAffordability /></Wrap> },
-      { path: 'fire',                element: <Wrap><FIREDashboard /></Wrap> },
-      { path: 'investment-compare',  element: <Wrap><InvestmentCompare /></Wrap> },
-      { path: 'savings-rate',        element: <Wrap><SavingsRate /></Wrap> },
-      { path: 'property-research',   element: <Wrap><PropertyResearch /></Wrap> },
+      { path: 'portfolio',                  element: <Wrap><Portfolio /></Wrap> },
+      { path: 'offset-vs-debt-recycling',   element: <Wrap><OffsetVsDR /></Wrap> },
+      { path: 'direct-vs-debt-recycling',   element: <Wrap><DirectVsDR /></Wrap> },
+      { path: 'tax-savings',                element: <Wrap><TaxSavingsGuide /></Wrap> },
+      { path: 'house-affordability',        element: <Wrap><HouseAffordability /></Wrap> },
+      { path: 'fire',                       element: <Wrap><FIREDashboard /></Wrap> },
+      { path: 'investment-compare',         element: <Wrap><InvestmentCompare /></Wrap> },
+      { path: 'savings-rate',               element: <Wrap><SavingsRate /></Wrap> },
+      { path: 'property-research',          element: <Wrap><PropertyResearch /></Wrap> },
+      // Legacy route redirects
+      { path: 'offset-vs-dr',   element: <Navigate to="/offset-vs-debt-recycling" replace /> },
+      { path: 'direct-vs-dr',   element: <Navigate to="/direct-vs-debt-recycling" replace /> },
     ],
   },
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <PortfolioProvider>
+      <RouterProvider router={router} />
+    </PortfolioProvider>
+  );
 }

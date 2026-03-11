@@ -9,6 +9,7 @@ import { Disclaimer } from '../../components/shared/Disclaimer';
 import { AboutCalc } from '../../components/shared/AboutCalc';
 import { runOffset, runDebtRecycling, monthlyRepayment } from './engine';
 import { formatCurrency, formatCompact, formatDiff } from '../../utils/formatters';
+import { usePortfolio } from '../../context/PortfolioContext';
 
 const DEFAULTS = {
   loan: 500000,
@@ -33,7 +34,17 @@ const ASSUMPTIONS = [
 ];
 
 export function OffsetVsDR() {
-  const [params, setParams] = useUrlParams(DEFAULTS);
+  const { portfolio } = usePortfolio();
+  const [params, setParams] = useUrlParams({
+    loan: portfolio.mortgageBalance > 0 ? portfolio.mortgageBalance : DEFAULTS.loan,
+    rate: portfolio.mortgageRate > 0 ? portfolio.mortgageRate : DEFAULTS.rate,
+    years: portfolio.mortgageYearsRemaining > 0 ? portfolio.mortgageYearsRemaining : DEFAULTS.years,
+    etfReturn: portfolio.etfReturn > 0 ? portfolio.etfReturn : DEFAULTS.etfReturn,
+    divYield: DEFAULTS.divYield,
+    margTax: portfolio.margTax > 0 ? portfolio.margTax : DEFAULTS.margTax,
+    cgtDiscount: DEFAULTS.cgtDiscount,
+    amountsStr: DEFAULTS.amountsStr,
+  });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [viewYear, setViewYear] = useState<number>(params.years);
@@ -134,20 +145,24 @@ export function OffsetVsDR() {
             Loan: <span className="text-slate-700 dark:text-slate-300">{formatCurrency(params.loan)}</span>
             {' · '}Term: <span className="text-slate-700 dark:text-slate-300">{params.years} yr P&amp;I</span>
             {' · '}Repayment: <span className="text-slate-700 dark:text-slate-300">{formatCurrency(mPmt)}/mo</span>
-            {' · '}DR loan: <span className="text-blue-600 dark:text-blue-400">{drLoanType === 'io' ? 'Interest-Only' : 'P&I'}</span>
+            {' · '}Debt Recycling loan: <span className="text-blue-600 dark:text-blue-400">{drLoanType === 'io' ? 'Interest-Only' : 'P&I'}</span>
             {' · '}After-tax DR cost:{' '}
             <span className="text-blue-600 dark:text-blue-400">{afterTaxDRCost}%</span>
           </p>
         </div>
         <button
           onClick={() => setSettingsOpen(o => !o)}
-          className={`px-4 py-2 text-xs font-semibold rounded-md border transition-all shrink-0
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md transition-all shrink-0
             ${settingsOpen
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-blue-500'
+              ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+              : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
+          aria-label="Toggle settings"
         >
-          {settingsOpen ? 'Close Settings' : 'Settings'}
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+          </svg>
+          <span className="font-medium">{settingsOpen ? 'Close' : 'Settings'}</span>
         </button>
       </div>
 
@@ -325,7 +340,7 @@ export function OffsetVsDR() {
           </div>
           {/* IO/PI quick toggle */}
           <div className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3">
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">DR Loan:</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">Debt Recycling Loan:</span>
             {(['io', 'pi'] as const).map(t => (
               <button key={t} onClick={() => setDrLoanType(t)}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all ${drLoanType === t ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-blue-400'}`}>
@@ -345,7 +360,7 @@ export function OffsetVsDR() {
       {results.length > 0 ? (
         <>
           <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
-            Each row compares using the same amount of cash in two ways: parking it in your offset account (reducing interest charged on your loan) vs investing via debt recycling (borrowing to invest, making interest tax-deductible). <strong className="text-slate-700 dark:text-slate-300">DR Net Wealth = portfolio value minus the outstanding investment loan minus estimated CGT if sold today.</strong> For IO loans this will appear low early on — DR's advantage grows via compounding tax deductions.{' '}
+            Each row compares using the same amount of cash in two ways: parking it in your offset account (reducing interest charged on your loan) vs investing via debt recycling (borrowing to invest, making interest tax-deductible). <strong className="text-slate-700 dark:text-slate-300">Debt Recycling Net Wealth = portfolio value minus the outstanding investment loan minus estimated CGT if sold today.</strong> For IO loans this will appear low early on — Debt Recycling's advantage grows via compounding tax deductions.{' '}
             <a href="https://www.ato.gov.au/individuals-and-families/investments-and-assets/interest-deductions-and-borrowing-expenses" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">ATO: Interest deductions ↗</a>
           </div>
           <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
@@ -356,11 +371,11 @@ export function OffsetVsDR() {
                   'Amount',
                   'Offset Interest Saved',
                   'Offset Payoff',
-                  `DR Portfolio (${params.years} yr)`,
-                  'DR Tax Deductions',
-                  'DR Net Wealth',
+                  `Debt Recycling Portfolio (${params.years} yr)`,
+                  'Debt Recycling Tax Deductions',
+                  'Debt Recycling Net Wealth',
                   'Offset Net Wealth',
-                  'DR Advantage',
+                  'Debt Recycling Advantage',
                 ].map(h => (
                   <th
                     key={h}
@@ -477,7 +492,7 @@ export function OffsetVsDR() {
       {sel && yearlyComp.length > 0 && (
         <>
           <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
-            The chart tracks <strong className="text-slate-700 dark:text-slate-300">net wealth over time</strong> for the selected amount. Offset net wealth = your cash (flat line, since the offset funds aren't invested). DR net wealth = portfolio value minus loan minus CGT. Click a year button to see a snapshot. The crossover point (where DR exceeds Offset) depends on your ETF return, tax rate, and loan type.{' '}
+            The chart tracks <strong className="text-slate-700 dark:text-slate-300">net wealth over time</strong> for the selected amount. Offset net wealth = your cash (flat line, since the offset funds aren't invested). Debt Recycling net wealth = portfolio value minus loan minus CGT. Click a year button to see a snapshot. The crossover point (where Debt Recycling exceeds Offset) depends on your ETF return, tax rate, and loan type.{' '}
             <a href="https://moneysmart.gov.au/shares/how-investments-are-taxed" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">MoneySmart: How investments are taxed ↗</a>
           </div>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
@@ -512,17 +527,17 @@ export function OffsetVsDR() {
                 color="green"
               />
               <StatCard
-                label="DR Net Wealth (post-CGT)"
+                label="Debt Recycling Net Wealth (post-CGT)"
                 value={formatCompact(snapYearData._dNW)}
                 color="blue"
               />
               <StatCard
-                label="DR Portfolio Value"
+                label="Debt Recycling Portfolio Value"
                 value={formatCompact(snapYearData._dPortfolio)}
                 color="purple"
               />
               <StatCard
-                label="DR Advantage"
+                label="Debt Recycling Advantage"
                 value={formatDiff(snapYearData._dNW - snapYearData._oNW)}
                 color={snapYearData._dNW >= snapYearData._oNW ? 'green' : 'red'}
               />
@@ -534,7 +549,7 @@ export function OffsetVsDR() {
             data={yearlyComp}
             keys={[
               { key: 'Offset', label: 'Offset Net Wealth', color: '#22c55e' },
-              { key: 'Debt Recycling', label: 'DR Net Wealth (post-CGT)', color: '#3b82f6' },
+              { key: 'Debt Recycling', label: 'Debt Recycling Net Wealth (post-CGT)', color: '#3b82f6' },
             ]}
             xKey="year"
             height={260}

@@ -11,6 +11,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, Legend,
   ResponsiveContainer, ReferenceLine, BarChart, Bar, Cell,
 } from 'recharts';
+import { usePortfolio } from '../../context/PortfolioContext';
 
 const ASSUMPTIONS = [
   'Annual compounding applied to all projections.',
@@ -21,8 +22,13 @@ const ASSUMPTIONS = [
 ];
 
 export function SavingsRate() {
-  const [income, setIncome] = useState(85000);
-  const [currentNW, setCurrentNW] = useState(200000);
+  const { portfolio } = usePortfolio();
+  const [income, setIncome] = useState(() => portfolio.grossSalary > 0 ? portfolio.grossSalary : 85000);
+  const [currentNW, setCurrentNW] = useState(() =>
+    (portfolio.savingsBalance + portfolio.etfValue) > 0
+      ? portfolio.savingsBalance + portfolio.etfValue
+      : 200000
+  );
   const [returnRate, setReturnRate] = useState(7);
   const [savingsRate, setSavingsRate] = useState(30);
 

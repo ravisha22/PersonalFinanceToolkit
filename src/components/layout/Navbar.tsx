@@ -3,14 +3,15 @@ import { NavLink } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
 
 const NAV_ITEMS = [
-  { path: '/offset-vs-dr',       label: 'Offset vs DR' },
-  { path: '/direct-vs-dr',       label: 'Direct vs DR' },
-  { path: '/tax-savings',        label: 'Tax Savings' },
-  { path: '/house-affordability',label: 'House Afford.' },
-  { path: '/fire',               label: 'FIRE' },
-  { path: '/investment-compare', label: 'Investments' },
-  { path: '/savings-rate',       label: 'Savings Rate' },
-  { path: '/property-research',  label: 'Property Research' },
+  { path: '/portfolio',                label: 'Portfolio' },
+  { path: '/tax-savings',              label: 'Tax Savings' },
+  { path: '/savings-rate',             label: 'Savings Rate' },
+  { path: '/fire',                     label: 'FIRE' },
+  { path: '/investment-compare',       label: 'Investment Comparison' },
+  { path: '/house-affordability',      label: 'House Affordability' },
+  { path: '/property-research',        label: 'Property Research' },
+  { path: '/offset-vs-debt-recycling', label: 'Offset vs Debt Recycling' },
+  { path: '/direct-vs-debt-recycling', label: 'Direct vs Debt Recycling' },
 ];
 
 export function Navbar() {
