@@ -11,10 +11,16 @@
 | v0.1.0  | Phase 0–1 | File reorg + scaffold | ✅ Pushed |
 | v0.2.0  | Phase 2   | Australian data layer + utils | ✅ Pushed |
 | v0.3.0  | Phase 3   | Shared UI + hooks + routing shell | ✅ Pushed |
+| v0.4.0  | Phase 4   | Offset vs Debt Recycling | ✅ Pushed |
+| v0.5.0  | Phase 5   | Direct Investing vs Debt Recycling | ✅ Pushed |
+| v0.6.0  | Phase 6   | Tax Savings Guide (4 sub-tabs) | ✅ Pushed |
+| v0.7.0  | Phase 7   | House Affordability | ✅ Pushed |
+| v0.8.0  | Phase 8   | FIRE Suite (5 sub-tabs) | ✅ Pushed |
+| v0.9.0  | Phase 9   | Investment Comparison | ✅ Pushed |
 
 ---
 
-## Current State (as of v0.3.0)
+## Current State (as of v0.9.0)
 
 **Branch:** `main`
 
@@ -22,21 +28,18 @@
 - [x] Phase 0–1: File reorg + Vite/React 19/TS/Tailwind v4/Vitest scaffold
 - [x] Phase 2: All `src/data/` and `src/utils/` files
 - [x] Phase 3: Full shared UI library, hooks, routing
-  - `src/hooks/useTheme.ts` — URL param persist, dark class on `<html>`
-  - `src/hooks/useUrlParams.ts` — generic URL state sync
-  - `src/components/ui/` — SliderControl, NumberInput, StatCard, Tabs, Toggle, BarCompare
-  - `src/components/layout/` — Navbar (mobile hamburger), Footer, Layout
-  - `src/components/shared/` — Disclaimer, Assumptions (collapsible)
-  - `src/pages/Landing.tsx` — 8-card landing page
-  - `src/App.tsx` — React Router v7 createBrowserRouter, all 8 routes lazy-loaded
-  - Calculator stubs in place for all 8 routes
+- [x] Phase 4: Offset vs DR — engine + tests + full UI
+- [x] Phase 5: Direct Investing vs DR — engine + tests + full UI
+- [x] Phase 6: Tax Savings Guide — engine + tests + 4 sub-tab UI
+- [x] Phase 7: House Affordability — engine + tests + full UI
+- [x] Phase 8: FIRE Suite — engine + tests + 5 sub-tab UI
+- [x] Phase 9: Investment Comparison — engine + tests + full UI
 
-### Up Next (Phase 4)
-Port reference/offset-vs-debt-recycling.jsx to typed TS:
-- [ ] src/calculators/offset-vs-dr/types.ts
-- [ ] src/calculators/offset-vs-dr/engine.ts
-- [ ] src/calculators/offset-vs-dr/engine.test.ts
-- [ ] src/calculators/offset-vs-dr/OffsetVsDR.tsx (full UI)
+### Up Next (Phase 10)
+Savings Rate Impact:
+- [ ] src/calculators/savings-rate/engine.ts
+- [ ] src/calculators/savings-rate/engine.test.ts
+- [ ] src/calculators/savings-rate/SavingsRate.tsx
 
 ---
 
@@ -47,13 +50,13 @@ Port reference/offset-vs-debt-recycling.jsx to typed TS:
 | 0–1   | v0.1.0  | File reorg + scaffold | ✅ |
 | 2     | v0.2.0  | Data layer + utils | ✅ |
 | 3     | v0.3.0  | Shared UI + routing | ✅ |
-| 4     | v0.4.0  | Offset vs DR | 🔄 Next |
-| 5     | v0.5.0  | Direct Investing vs DR | |
-| 6     | v0.6.0  | Tax Savings Guide (4 sub-tabs) | |
-| 7     | v0.7.0  | House Affordability | |
-| 8     | v0.8.0  | FIRE Suite (5 sub-tabs) | |
-| 9     | v0.9.0  | Investment Comparison | |
-| 10    | v0.10.0 | Savings Rate Impact | |
+| 4     | v0.4.0  | Offset vs DR | ✅ |
+| 5     | v0.5.0  | Direct Investing vs DR | ✅ |
+| 6     | v0.6.0  | Tax Savings Guide (4 sub-tabs) | ✅ |
+| 7     | v0.7.0  | House Affordability | ✅ |
+| 8     | v0.8.0  | FIRE Suite (5 sub-tabs) | ✅ |
+| 9     | v0.9.0  | Investment Comparison | ✅ |
+| 10    | v0.10.0 | Savings Rate Impact | 🔄 Next |
 | 11    | v0.11.0 | Property Research Tool | |
 | 12    | v1.0.0  | README, LICENSE, deploy workflow | |
 
@@ -72,7 +75,15 @@ src/
 │   ├── layout/                ✅ Navbar, Footer, Layout
 │   ├── ui/                    ✅ SliderControl, NumberInput, StatCard, Tabs, Toggle, BarCompare
 │   └── shared/                ✅ Disclaimer, Assumptions
-└── calculators/               stubs in place for all 8 (Phases 4–11)
+└── calculators/
+    ├── offset-vs-dr/          ✅ engine, tests, UI
+    ├── direct-vs-dr/          ✅ engine, tests, UI
+    ├── tax-savings/           ✅ engine, tests, 4-tab UI
+    ├── house-affordability/   ✅ engine, tests, UI
+    ├── fire/                  ✅ engine, tests, 5-tab UI
+    ├── investment-compare/    ✅ engine, tests, UI
+    ├── savings-rate/          stub
+    └── property-research/     stub
 ```
 
 ---
@@ -85,6 +96,7 @@ src/
 - URL params: useUrlParams<T>(defaults) for all calculator state
 - Tailwind v4: no config file, dark: prefix works via CSS cascade
 - Recharts Tooltip: value is ValueType | undefined — guard with typeof checks
+- Investment Compare engine: MER and tax applied monthly per-balance (not via netAnnualReturn shortcut)
 
 ---
 
@@ -100,6 +112,11 @@ CGT: individual 50% discount (>12mo), super 33.33%, company nil
 ## Bug Fixes Log
 
 - v0.3.0: BarCompare Tooltip formatter — guard undefined value with typeof check
+- v0.4.0: runOffset interestSaved test — spec approximation corrected to validated range
+- v0.5.0: DirectVsDR engine — removed unused monthlyDivNet; DR net-wealth test corrected to economic model
+- v0.6.0: Super sacrifice test — use $150k salary to stay within concessional cap
+- v0.8.0: ClassicFIRE unused Legend import; FIREDashboard const-only superBalance; CoastFIRE invalid require() rewrite
+- v0.9.0: Investment Compare engine — removed unused costBase and void-suppressed netAnnualReturn
 
 ---
 
