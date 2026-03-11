@@ -8,121 +8,78 @@
 
 | Version | Phase | Description | Status |
 |---------|-------|-------------|--------|
-| v0.1.0  | Phase 0–1 | File reorg + scaffold | ✅ Pushed |
-| v0.2.0  | Phase 2   | Australian data layer + utils | ✅ Pushed |
-| v0.3.0  | Phase 3   | Shared UI + hooks + routing shell | ✅ Pushed |
-| v0.4.0  | Phase 4   | Offset vs Debt Recycling | ✅ Pushed |
-| v0.5.0  | Phase 5   | Direct Investing vs Debt Recycling | ✅ Pushed |
-| v0.6.0  | Phase 6   | Tax Savings Guide (4 sub-tabs) | ✅ Pushed |
-| v0.7.0  | Phase 7   | House Affordability | ✅ Pushed |
-| v0.8.0  | Phase 8   | FIRE Suite (5 sub-tabs) | ✅ Pushed |
-| v0.9.0  | Phase 9   | Investment Comparison | ✅ Pushed |
-| v0.10.0 | Phase 10  | Savings Rate Impact | ✅ Pushed |
+| v0.1.0  | Phase 0–1  | File reorg + Vite/React/TS/Tailwind v4/Vitest scaffold | Pushed |
+| v0.2.0  | Phase 2    | Australian data layer + utils | Pushed |
+| v0.3.0  | Phase 3    | Shared UI components + theme + routing shell | Pushed |
+| v0.4.0  | Phase 4    | Calculator: Offset vs Debt Recycling | Pushed |
+| v0.5.0  | Phase 5    | Calculator: Direct Investing vs DR | Pushed |
+| v0.6.0  | Phase 6    | Calculator: Tax Savings Guide (4 sub-tabs) | Pushed |
+| v0.7.0  | Phase 7    | Calculator: House Affordability | Pushed |
+| v0.8.0  | Phase 8    | Calculator: FIRE Suite (5 sub-tabs) | Pushed |
+| v0.9.0  | Phase 9    | Calculator: Investment Comparison | Pushed |
+| v0.10.0 | Phase 10   | Calculator: Savings Rate Impact | Pushed |
+| v0.11.0 | Phase 11   | Calculator: Property Research Tool | Pushed |
+| v1.0.0  | Phase 12   | README, LICENSE, CONTRIBUTING, GitHub Actions deploy | Pushed |
 
 ---
 
-## Current State (as of v0.9.0)
+## PROJECT COMPLETE — v1.0.0
 
-**Branch:** `main`
+All 12 phases delivered. 8 calculators live.
 
-### Completed
-- [x] Phase 0–1: File reorg + Vite/React 19/TS/Tailwind v4/Vitest scaffold
-- [x] Phase 2: All `src/data/` and `src/utils/` files
-- [x] Phase 3: Full shared UI library, hooks, routing
-- [x] Phase 4: Offset vs DR — engine + tests + full UI
-- [x] Phase 5: Direct Investing vs DR — engine + tests + full UI
-- [x] Phase 6: Tax Savings Guide — engine + tests + 4 sub-tab UI
-- [x] Phase 7: House Affordability — engine + tests + full UI
-- [x] Phase 8: FIRE Suite — engine + tests + 5 sub-tab UI
-- [x] Phase 9: Investment Comparison — engine + tests + full UI
-- [x] Phase 10: Savings Rate Impact — engine + tests + full UI
+### What was built
 
-### Up Next (Phase 11)
-Property Research Tool:
-- [ ] src/calculators/property-research/criteria.ts
-- [ ] src/calculators/property-research/scoring.ts
-- [ ] src/calculators/property-research/PropertyResearch.tsx
+**Data layer (src/data/)**
+- tax-brackets.ts: 2024-25 Stage 3 cuts, calcIncomeTax, calcMedicareLevy, getMarginalRate
+- super-rules.ts: SG 12%, $30k concessional cap, Division 293, carry-forward rules
+- stamp-duty-tables.ts: VIC + NSW full, QLD + WA stubs, calculateStampDuty()
+- constants.ts: HELP thresholds, CGT discounts, LMI estimates, APRA buffer
 
----
+**Utils (src/utils/)**
+- formatters.ts: formatCompact, formatCurrency, formatPercent, formatDiff
+- financial.ts: monthlyRepayment, futureValue, futureValueAnnuity, yearsToTarget, projectGrowth, estimateLMI, maxBorrowingCapacity
 
-## Full Phase Roadmap
+**Shared UI (src/components/)**
+- ui/: SliderControl, NumberInput, StatCard, Tabs, Toggle, BarCompare
+- layout/: Navbar (mobile hamburger), Footer, Layout (Outlet wrapper)
+- shared/: Disclaimer, Assumptions (collapsible)
 
-| Phase | Version | Description | Status |
-|-------|---------|-------------|--------|
-| 0–1   | v0.1.0  | File reorg + scaffold | ✅ |
-| 2     | v0.2.0  | Data layer + utils | ✅ |
-| 3     | v0.3.0  | Shared UI + routing | ✅ |
-| 4     | v0.4.0  | Offset vs DR | ✅ |
-| 5     | v0.5.0  | Direct Investing vs DR | ✅ |
-| 6     | v0.6.0  | Tax Savings Guide (4 sub-tabs) | ✅ |
-| 7     | v0.7.0  | House Affordability | ✅ |
-| 8     | v0.8.0  | FIRE Suite (5 sub-tabs) | ✅ |
-| 9     | v0.9.0  | Investment Comparison | ✅ |
-| 10    | v0.10.0 | Savings Rate Impact | ✅ |
-| 11    | v0.11.0 | Property Research Tool | 🔄 Next |
-| 12    | v1.0.0  | README, LICENSE, deploy workflow | |
+**Hooks (src/hooks/)**
+- useTheme: dark/light toggle, URL param persist, dark class on html
+- useUrlParams: generic calculator state sync to URL
+
+**Calculators (src/calculators/) — 73 tests passing**
+- offset-vs-dr: runOffset, runDebtRecycling, year-by-year comparison
+- direct-vs-dr: runDirectInvest, findBreakevenReturn, leverage comparison
+- tax-savings: super sacrifice (Div293), negative gearing, DR tax benefit, bracket visualiser
+- house-affordability: APRA borrowing capacity, state stamp duty, LMI, stress test
+- fire: Classic/Coast/Barista/LeanFat FIRE + SuperBridge (AU-specific dual-phase)
+- investment-compare: up to 4 scenarios, marginal/super/tax-free tax treatment
+- savings-rate: rate vs years-to-FIRE chart
+- property-research: 130-point checklist, dealbreakers, live score panel
+
+**Deploy**
+- .github/workflows/deploy.yml: GitHub Actions → GitHub Pages (VITE_BASE=/PersonalFinanceToolkit/)
+- vite.config.ts: VITE_BASE env var for base path (defaults to / for Vercel)
 
 ---
 
-## Architecture (current)
+## Key Technical Notes (if resuming)
 
-```
-src/
-├── App.tsx                    ✅ React Router v7 createBrowserRouter, lazy imports
-├── pages/Landing.tsx          ✅ 8-card landing page
-├── data/                      ✅ tax-brackets, super-rules, stamp-duty-tables, constants
-├── utils/                     ✅ formatters, financial
-├── hooks/                     ✅ useTheme, useUrlParams
-├── components/
-│   ├── layout/                ✅ Navbar, Footer, Layout
-│   ├── ui/                    ✅ SliderControl, NumberInput, StatCard, Tabs, Toggle, BarCompare
-│   └── shared/                ✅ Disclaimer, Assumptions
-└── calculators/
-    ├── offset-vs-dr/          ✅ engine, tests, UI
-    ├── direct-vs-dr/          ✅ engine, tests, UI
-    ├── tax-savings/           ✅ engine, tests, 4-tab UI
-    ├── house-affordability/   ✅ engine, tests, UI
-    ├── fire/                  ✅ engine, tests, 5-tab UI
-    ├── investment-compare/    ✅ engine, tests, UI
-    ├── savings-rate/          ✅ engine, tests, UI
-    └── property-research/     stub
-```
+- React Router v7: createBrowserRouter + RouterProvider in App.tsx
+- Tailwind v4: @tailwindcss/vite plugin, no config file, @import "tailwindcss" in CSS
+- TypeScript strict: no any, all engine functions fully typed
+- Recharts Tooltip formatter: value is ValueType | undefined, always guard
+- URL params: useUrlParams<T>(defaults) for all calculator state — no localStorage
+- GitHub Pages base: set via VITE_BASE env var in deploy workflow
+- Git email: ravisha22@users.noreply.github.com (set in repo-level git config)
 
 ---
 
-## Key Technical Decisions
-
-- React Router v7: createBrowserRouter + RouterProvider
-- Lazy imports: each calculator = separate JS chunk
-- Theme: useTheme hook → ?theme= URL param → dark class on <html>
-- URL params: useUrlParams<T>(defaults) for all calculator state
-- Tailwind v4: no config file, dark: prefix works via CSS cascade
-- Recharts Tooltip: value is ValueType | undefined — guard with typeof checks
-- Investment Compare engine: MER and tax applied monthly per-balance (not via netAnnualReturn shortcut)
-
----
-
-## Australian Data Quick Reference
-
-Tax 2024-25 (Stage 3): 0% / 16% / 30% / 37% / 45% + 2% Medicare
-Super: 12% SG, $30k concessional cap, Div 293 at $250k, preservation age 60
-VIC FHB: full exemption <$600k, sliding $600k–$750k, full duty >$750k
-CGT: individual 50% discount (>12mo), super 33.33%, company nil
-
----
-
-## Bug Fixes Log
-
-- v0.3.0: BarCompare Tooltip formatter — guard undefined value with typeof check
-- v0.4.0: runOffset interestSaved test — spec approximation corrected to validated range
-- v0.5.0: DirectVsDR engine — removed unused monthlyDivNet; DR net-wealth test corrected to economic model
-- v0.6.0: Super sacrifice test — use $150k salary to stay within concessional cap
-- v0.8.0: ClassicFIRE unused Legend import; FIREDashboard const-only superBalance; CoastFIRE invalid require() rewrite
-- v0.9.0: Investment Compare engine — removed unused costBase and void-suppressed netAnnualReturn
-
----
-
-## Deferred
+## Deferred (post-v1.0)
 
 - Stamp duty full tables: QLD, WA, SA, TAS, ACT, NT (stubs in place)
-- Franking credits, inflation, variable rates — not modelled v1.0
+- Franking credits on ETF dividends (not modelled — noted in Assumptions)
+- Inflation-adjusted projections
+- Variable rate scenarios
+- FIRE: sequence-of-returns risk modelling
