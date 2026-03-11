@@ -17,6 +17,7 @@
 | v0.7.0  | Phase 7   | House Affordability | ✅ Pushed |
 | v0.8.0  | Phase 8   | FIRE Suite (5 sub-tabs) | ✅ Pushed |
 | v0.9.0  | Phase 9   | Investment Comparison | ✅ Pushed |
+| v0.10.0 | Phase 10  | Savings Rate Impact | ✅ Pushed |
 
 ---
 
@@ -34,12 +35,13 @@
 - [x] Phase 7: House Affordability — engine + tests + full UI
 - [x] Phase 8: FIRE Suite — engine + tests + 5 sub-tab UI
 - [x] Phase 9: Investment Comparison — engine + tests + full UI
+- [x] Phase 10: Savings Rate Impact — engine + tests + full UI
 
-### Up Next (Phase 10)
-Savings Rate Impact:
-- [ ] src/calculators/savings-rate/engine.ts
-- [ ] src/calculators/savings-rate/engine.test.ts
-- [ ] src/calculators/savings-rate/SavingsRate.tsx
+### Up Next (Phase 11)
+Property Research Tool:
+- [ ] src/calculators/property-research/criteria.ts
+- [ ] src/calculators/property-research/scoring.ts
+- [ ] src/calculators/property-research/PropertyResearch.tsx
 
 ---
 
@@ -56,8 +58,8 @@ Savings Rate Impact:
 | 7     | v0.7.0  | House Affordability | ✅ |
 | 8     | v0.8.0  | FIRE Suite (5 sub-tabs) | ✅ |
 | 9     | v0.9.0  | Investment Comparison | ✅ |
-| 10    | v0.10.0 | Savings Rate Impact | 🔄 Next |
-| 11    | v0.11.0 | Property Research Tool | |
+| 10    | v0.10.0 | Savings Rate Impact | ✅ |
+| 11    | v0.11.0 | Property Research Tool | 🔄 Next |
 | 12    | v1.0.0  | README, LICENSE, deploy workflow | |
 
 ---
@@ -82,7 +84,7 @@ src/
     ├── house-affordability/   ✅ engine, tests, UI
     ├── fire/                  ✅ engine, tests, 5-tab UI
     ├── investment-compare/    ✅ engine, tests, UI
-    ├── savings-rate/          stub
+    ├── savings-rate/          ✅ engine, tests, UI
     └── property-research/     stub
 ```
 
