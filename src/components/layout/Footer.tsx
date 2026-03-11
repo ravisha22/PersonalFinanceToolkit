@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-col md:flex-row justify-between gap-4 text-xs text-slate-400 dark:text-slate-500">
           <div className="max-w-xl leading-relaxed">
             <strong className="text-slate-600 dark:text-slate-300">Not financial advice.</strong>{' '}
-            AusFinTools is a free educational tool. All calculations are illustrative only and
+            Australian Personal Finance Tools is a free educational tool. All calculations are illustrative only and
             should not be relied upon for financial decisions. Always consult a licensed
             Australian financial adviser (AFS licence holder) before acting.
           </div>

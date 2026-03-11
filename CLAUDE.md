@@ -366,3 +366,5 @@ test(fire): add Coast FIRE engine tests
 5. **The financial math must be correct** — test thoroughly, document assumptions
 6. **Mobile responsive** — many users will access on phones
 7. **URL-shareable scenarios** — encode key params in URL so users can share specific calculations
+8. **ALWAYS record instructions, bugs, feedback in recall.md before proceeding with code changes** - Very important!
+9. **ALWAYS perform versioning and Git push** - After every major changes, version the files and build and DO NOT forget to push the changes to GitHub. This ensures that the latest code is always available and prevents loss of work.

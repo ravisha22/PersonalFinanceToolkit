@@ -12,14 +12,15 @@ interface Props {
   currentAge: number;
   nonSuperBalance: number;
   superBalance: number;
+  onSuperBalanceChange: (v: number) => void;
   returnRate: number;
 }
 
-export function SuperBridge({ currentAge, nonSuperBalance, superBalance, returnRate }: Props) {
+export function SuperBridge({ currentAge, nonSuperBalance, superBalance, onSuperBalanceChange, returnRate }: Props) {
   const [earlyRetirementAge, setEarlyRetirementAge] = useState(50);
-  const [annualExpenses, setAnnualExpenses] = useState(80000);
-  const [annualSavingsNonSuper, setAnnualSavingsNonSuper] = useState(40000);
-  const [annualSuperContribs, setAnnualSuperContribs] = useState(30000);
+  const [annualExpenses, setAnnualExpenses] = useState(60000);
+  const [annualSavingsNonSuper, setAnnualSavingsNonSuper] = useState(20000);
+  const [annualSuperContribs, setAnnualSuperContribs] = useState(15000);
 
   const scenarios = [45, 50, 55].map(retireAge => {
     return {
@@ -68,10 +69,13 @@ export function SuperBridge({ currentAge, nonSuperBalance, superBalance, returnR
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-        <NumberInput label="Annual Savings (non-super)" value={annualSavingsNonSuper} onChange={setAnnualSavingsNonSuper} min={0} max={500000} step={5000} prefix="$" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+        <NumberInput label="Current Super Balance" value={superBalance} onChange={onSuperBalanceChange} min={0} max={5000000} step={10000} prefix="$" />
         <NumberInput label="Annual Super Contribs" value={annualSuperContribs} onChange={setAnnualSuperContribs} min={0} max={50000} step={1000} prefix="$" />
         <SliderControl label="Early Retirement Age" value={earlyRetirementAge} onChange={v => setEarlyRetirementAge(Math.round(v))} min={35} max={59} step={1} />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+        <NumberInput label="Annual Savings (non-super)" value={annualSavingsNonSuper} onChange={setAnnualSavingsNonSuper} min={0} max={500000} step={5000} prefix="$" />
         <NumberInput label="Annual Expenses" value={annualExpenses} onChange={setAnnualExpenses} min={10000} max={300000} step={5000} prefix="$" />
       </div>
 

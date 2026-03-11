@@ -3,6 +3,7 @@ import { CRITERIA, LAYERS, type Layer } from './criteria';
 import { calculateScore, getRecommendationColor, getRecommendationBg } from './scoring';
 import { Disclaimer } from '../../components/shared/Disclaimer';
 import { Assumptions } from '../../components/shared/Assumptions';
+import { AboutCalc } from '../../components/shared/AboutCalc';
 
 const DATA_SOURCES = [
   { label: 'Domain',                  url: 'domain.com.au' },
@@ -169,6 +170,27 @@ export function PropertyResearch() {
           130-point investment property checklist — suburb, location, and property scoring.
         </p>
       </div>
+
+      <AboutCalc concepts={[
+        {
+          term: 'What is investment property due diligence?',
+          definition: 'Systematic research before purchasing an investment property. This covers suburb-level fundamentals (population growth, vacancy rate, supply/demand), local risk factors (flood zones, zoning, infrastructure), and the physical property (condition, layout, build quality). Skipping any layer significantly increases investment risk.',
+          link: 'https://moneysmart.gov.au/property-investment',
+          linkLabel: 'MoneySmart (ASIC): Property investment',
+        },
+        {
+          term: 'What is rental yield?',
+          definition: 'Annual rental income divided by property value, expressed as a percentage. A $650,000 property renting for $26,000/year has a 4% gross yield. High-yield suburbs often offer better cash flow but lower capital growth; tightly-held growth suburbs often have lower yields.',
+          link: 'https://en.wikipedia.org/wiki/Rental_yield',
+          linkLabel: 'Wikipedia: Rental yield',
+        },
+        {
+          term: 'What is a deal-breaker in property research?',
+          definition: 'A factor that makes a property unsuitable regardless of how well it scores on other criteria. Flood zone and bushfire zone risk are classic examples — even a highly-rated suburb cannot compensate for serious insurance, financing, and resale challenges these issues create.',
+          link: 'https://moneysmart.gov.au/property-investment/investment-property',
+          linkLabel: 'MoneySmart: Risks of investment property',
+        },
+      ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left — criteria */}

@@ -4,6 +4,7 @@ import { NumberInput } from '../../components/ui/NumberInput';
 import { StatCard } from '../../components/ui/StatCard';
 import { Assumptions } from '../../components/shared/Assumptions';
 import { Disclaimer } from '../../components/shared/Disclaimer';
+import { AboutCalc } from '../../components/shared/AboutCalc';
 import { yearsToFIREBySavingsRate, projectBySavingsRate } from './engine';
 import { formatCurrency, formatCompact } from '../../utils/formatters';
 import {
@@ -20,7 +21,7 @@ const ASSUMPTIONS = [
 ];
 
 export function SavingsRate() {
-  const [income, setIncome] = useState(150000);
+  const [income, setIncome] = useState(85000);
   const [currentNW, setCurrentNW] = useState(200000);
   const [returnRate, setReturnRate] = useState(7);
   const [savingsRate, setSavingsRate] = useState(30);
@@ -77,6 +78,21 @@ export function SavingsRate() {
         </p>
       </div>
 
+      <AboutCalc concepts={[
+        {
+          term: 'What does savings rate mean in FIRE planning?',
+          definition: 'Your savings rate is the percentage of your take-home income that you save and invest (not spend). It is the single most powerful lever in FIRE planning: a higher rate both grows your investments faster and shrinks your annual expenses — meaning you need a smaller total portfolio to retire.',
+          link: 'https://en.wikipedia.org/wiki/FIRE_movement',
+          linkLabel: 'Wikipedia: FIRE movement',
+        },
+        {
+          term: 'What is a FIRE number?',
+          definition: 'The total portfolio value needed to retire. Calculated as: annual expenses ÷ safe withdrawal rate (typically 4%). Example: spending $60,000/year → FIRE number = $60,000 ÷ 0.04 = $1,500,000. Once your investments reach this level, they should generate enough return to sustain your lifestyle indefinitely.',
+          link: 'https://en.wikipedia.org/wiki/Trinity_study',
+          linkLabel: 'Wikipedia: Trinity study (4% rule)',
+        },
+      ]} />
+
       {/* Inputs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
         <NumberInput
@@ -118,6 +134,10 @@ export function SavingsRate() {
       </div>
 
       {/* Stat cards */}
+      <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
+        <strong className="text-slate-700 dark:text-slate-300">FIRE Number</strong> = annual expenses ÷ 4% safe withdrawal rate — the portfolio size needed to retire. <strong className="text-slate-700 dark:text-slate-300">Years to FIRE</strong> assumes you invest your annual savings each year, compounding at the return rate, until your portfolio covers the FIRE number. A higher savings rate shrinks both your FIRE number (lower expenses) and the time to reach it (more savings invested).{' '}
+        <a href="https://en.wikipedia.org/wiki/FIRE_movement" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">Wikipedia: FIRE movement ↗</a>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard label="FIRE Number" value={formatCompact(currentFireNumber)} color="blue" />
         <StatCard label="Years to FIRE" value={`${currentYears} yrs`} color="green" />

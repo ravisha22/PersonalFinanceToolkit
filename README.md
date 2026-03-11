@@ -1,6 +1,6 @@
-# AusFinTools
+# Australian Personal Finance Tools
 
-> Free, open-source, privacy-first suite of Australian personal finance calculators.
+> Free, open-source, privacy-first suite of Australian personal finance tools.
 
 [![Build](https://github.com/ravisha22/PersonalFinanceToolkit/actions/workflows/deploy.yml/badge.svg)](https://github.com/ravisha22/PersonalFinanceToolkit/actions/workflows/deploy.yml)
 ![Based on 2024-25 ATO rates](https://img.shields.io/badge/ATO%20rates-2024--25-blue)
@@ -11,9 +11,9 @@
 
 ## What is this?
 
-AusFinTools is a collection of calculators built specifically for **Australian** workers and investors. All calculations run entirely in your browser — no sign-up, no data collection, no backend.
+Australian Personal Finance Tools is a collection of calculators built specifically for **Australian** workers and investors. All calculations run entirely in your browser — no sign-up, no data collection, no backend.
 
-Most open-source finance tools are US-centric. AusFinTools uses:
+Most open-source finance tools are US-centric. This tool uses:
 - **2024-25 ATO tax brackets** (Stage 3 cuts)
 - **Australian super rules** (12% SG, $30k concessional cap, preservation age 60)
 - **State-specific stamp duty** (VIC, NSW full tables; QLD, WA stubs)
@@ -103,7 +103,7 @@ To update tax tables for a new financial year, edit `src/data/` and update the `
 
 ## Disclaimer
 
-**This is NOT financial advice.** AusFinTools is an educational tool only. All calculations are estimates based on 2024-25 ATO rates and may not reflect your personal circumstances. Always consult a licensed Australian financial adviser (AFS licence holder) before acting.
+**This is NOT financial advice.** This is an educational tool only. All calculations are estimates based on 2024-25 ATO rates and may not reflect your personal circumstances. Always consult a licensed Australian financial adviser (AFS licence holder) before acting.
 
 ---
 

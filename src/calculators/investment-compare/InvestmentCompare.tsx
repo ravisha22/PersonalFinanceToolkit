@@ -4,6 +4,7 @@ import { NumberInput } from '../../components/ui/NumberInput';
 import { StatCard } from '../../components/ui/StatCard';
 import { Assumptions } from '../../components/shared/Assumptions';
 import { Disclaimer } from '../../components/shared/Disclaimer';
+import { AboutCalc } from '../../components/shared/AboutCalc';
 import { runAllScenarios, SCENARIO_COLORS, type ScenarioParams, type TaxTreatment } from './engine';
 import { formatCurrency, formatCompact, formatPct } from '../../utils/formatters';
 import {
@@ -84,6 +85,21 @@ export function InvestmentCompare() {
         </p>
       </div>
 
+      <AboutCalc concepts={[
+        {
+          term: 'What is MER (Management Expense Ratio)?',
+          definition: 'The annual fee charged by an ETF or managed fund, expressed as a % of your balance. A 0.07% MER on $100,000 = $70/year. Even seemingly small fee differences compound dramatically over decades — a 1% higher MER on $100k over 30 years at 8% growth costs roughly $90,000 in lost returns.',
+          link: 'https://en.wikipedia.org/wiki/Expense_ratio',
+          linkLabel: 'Wikipedia: Expense ratio',
+        },
+        {
+          term: 'What does "super (15%)" tax treatment mean?',
+          definition: 'Investment earnings inside a super fund are taxed at a concessional 15% rate, compared to your marginal tax rate outside super. In retirement (pension phase), earnings are 0% tax. This makes super a powerful tax-efficient vehicle for long-term investing, especially for higher earners.',
+          link: 'https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super/tax-on-contributions',
+          linkLabel: 'ATO: Tax on super',
+        },
+      ]} />
+
       {/* Shared settings */}
       <div className="grid grid-cols-2 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
         <SliderControl label="Time Horizon" value={years} onChange={v => setYears(Math.round(v))} min={1} max={40} step={1} suffix=" yrs" />
@@ -136,6 +152,10 @@ export function InvestmentCompare() {
       </div>
 
       {/* Chart */}
+      <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
+        Each line shows the <strong className="text-slate-700 dark:text-slate-300">total portfolio balance</strong> (initial + contributions + compounded growth, minus tax and fees) over your chosen time horizon. Lines that diverge steeply benefit most from either lower fees or preferential tax treatment. <strong className="text-slate-700 dark:text-slate-300">Final balance</strong> is before any withdrawal tax or CGT.{' '}
+        <a href="https://moneysmart.gov.au/saving-and-budgeting/compound-interest" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">MoneySmart: How compound interest works ↗</a>
+      </div>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
         <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4">Portfolio Balance Over Time</h3>
         <ResponsiveContainer width="100%" height={280}>

@@ -5,6 +5,7 @@ import { NumberInput } from '../../components/ui/NumberInput';
 import { StatCard } from '../../components/ui/StatCard';
 import { Assumptions } from '../../components/shared/Assumptions';
 import { Disclaimer } from '../../components/shared/Disclaimer';
+import { AboutCalc } from '../../components/shared/AboutCalc';
 import {
   runDirectInvest,
   runDebtRecyclingStandalone,
@@ -24,12 +25,12 @@ import {
 
 const DEFAULTS = {
   amount: 200000,
-  etfReturn: 8.5,
-  divYield: 2.5,
-  mortgageRate: 5.7,
-  margTax: 47,
+  etfReturn: 8.0,
+  divYield: 2.0,
+  mortgageRate: 6.0,
+  margTax: 34.5,
   cgtDiscount: 50,
-  years: 15,
+  years: 20,
 };
 
 const ASSUMPTIONS = [
@@ -102,6 +103,27 @@ export function DirectVsDR() {
           Compare investing a lump sum directly (unlevered) vs using a tax-deductible investment loan.
         </p>
       </div>
+
+      <AboutCalc concepts={[
+        {
+          term: 'Why does Debt Recycling show lower net wealth early on?',
+          definition: 'DR uses an interest-only loan. Your net wealth = portfolio value MINUS the loan you still owe. With $200k invested: direct = $224k portfolio (no debt). DR = $224k portfolio minus $200k loan = ~$24k. This is correct — DR only outperforms once cumulative tax deductions compound enough. Check the breakeven ETF return callout below to see if your expected return clears the hurdle.',
+          link: 'https://www.ato.gov.au/individuals-and-families/investments-and-assets/interest-deductions-and-borrowing-expenses',
+          linkLabel: 'ATO: Interest deductions on investment loans',
+        },
+        {
+          term: 'What is the breakeven return?',
+          definition: 'The minimum ETF return needed for DR to outperform direct investing. Formula: mortgage rate × (1 − marginal tax rate). E.g., 6% rate × (1 − 34.5%) = 3.93%. If your ETF earns above this, DR\'s after-tax borrowing cost is lower than your return — DR should win over time.',
+          link: 'https://en.wikipedia.org/wiki/Debt_recycling',
+          linkLabel: 'Wikipedia: Debt recycling',
+        },
+        {
+          term: 'What is direct (unlevered) investing?',
+          definition: 'Buying assets with your own cash, no borrowing. No interest costs, no tax deductions on borrowing, no leverage risk. Your net wealth = portfolio value only. Simpler and lower risk than debt recycling.',
+          link: 'https://en.wikipedia.org/wiki/Exchange-traded_fund',
+          linkLabel: 'Wikipedia: Exchange-traded fund (ETF)',
+        },
+      ]} />
 
       {/* Inputs */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
@@ -197,6 +219,10 @@ export function DirectVsDR() {
       </div>
 
       {/* Summary Stat Cards */}
+      <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
+        <strong className="text-slate-700 dark:text-slate-300">Direct Final Value</strong> = portfolio value (no debt). <strong className="text-slate-700 dark:text-slate-300">DR Final Value</strong> = portfolio value (same growth). <strong className="text-slate-700 dark:text-slate-300">DR Net Wealth</strong> = portfolio minus the outstanding IO loan balance minus CGT — this is why DR looks worse short-term. <strong className="text-slate-700 dark:text-slate-300">DR Advantage</strong> is only positive once tax deductions have compounded enough to overcome the debt.{' '}
+        <a href="https://moneysmart.gov.au/managing-debt/investment-debt" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">MoneySmart: Investment debt ↗</a>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <StatCard
           label={`Direct — Final Value (${params.years} yr)`}
@@ -236,6 +262,10 @@ export function DirectVsDR() {
       </div>
 
       {/* Wealth Trajectory Chart */}
+      <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
+        This chart tracks <strong className="text-slate-700 dark:text-slate-300">net wealth (after CGT, after repaying the investment loan)</strong> over time. The dashed reference line shows your starting investment amount. The point where the blue DR line crosses the green Direct line is when DR starts winning — the longer your horizon and the higher your ETF return above the breakeven, the sooner this happens.{' '}
+        <a href="https://www.investsmart.com.au/investment-calculators/compound-interest-calculator" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">More: Compound growth calculator ↗</a>
+      </div>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
         <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4">
           Wealth Trajectory (net of CGT)

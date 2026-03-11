@@ -1,4 +1,4 @@
-# Contributing to AusFinTools
+# Contributing to Australian Personal Finance Tools
 
 Thanks for helping improve Australia's best open-source finance calculator suite.
 

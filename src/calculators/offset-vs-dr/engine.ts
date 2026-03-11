@@ -79,21 +79,10 @@ export function runOffset(
 /**
  * Model debt recycling: convert home loan equity into a tax-deductible investment loan.
  *
- * @param loan - Total original loan (AUD)
- * @param rate - Annual interest rate as percentage (same rate for both loans)
- * @param years - Projection horizon in years
- * @param investAmt - Amount recycled into investment loan (IO at inception)
- * @param etfReturn - Total ETF annual return as percentage
- * @param divYield - Dividend yield as percentage (portion of etfReturn taxed annually)
- * @param margTaxPct - Marginal tax rate as PERCENTAGE (e.g. 47) — divided by 100 internally
- * @param cgtDiscount - CGT discount as percentage (e.g. 50) — used for unrealised gain calc
+ * @param investLoanType - 'io' (interest-only, default) or 'pi' (principal & interest)
  *
- * Assumptions:
- * - Home loan: P&I on (loan - investAmt).
- * - Investment loan: Interest-only at same rate; balance stays constant at investAmt.
- * - Portfolio grows at (etfReturn - divYield)/12 per month + dividends reinvested.
- * - Tax deduction = invest interest × margTax each month.
- * - CGT discount applied to unrealised gain at end of each year.
+ * Assumptions when IO: investment loan balance stays constant; interest tax-deductible throughout.
+ * Assumptions when PI: investment loan amortises over term; deduction decreases as balance falls.
  */
 export function runDebtRecycling(
   loan: number,
@@ -104,6 +93,7 @@ export function runDebtRecycling(
   divYield: number,
   margTaxPct: number,
   cgtDiscount: number,
+  investLoanType: 'io' | 'pi' = 'io',
 ): DRResult {
   const margTax = margTaxPct / 100;
   const cgtDiscountDecimal = cgtDiscount / 100;
@@ -111,11 +101,12 @@ export function runDebtRecycling(
   const r = rate / 100 / 12;
   const n = years * 12;
   const payment = monthlyRepayment(loan, rate, years);
+  const investPayment = investLoanType === 'pi' ? monthlyRepayment(investAmt, rate, years) : 0;
   const growthOnly = (etfReturn - divYield) / 100 / 12;
   const monthlyDiv = divYield / 100 / 12;
 
   let homeLoanBal = loan - investAmt;
-  const investLoanBal = investAmt; // IO — stays constant
+  let investLoanBal = investAmt;
   let portfolioValue = investAmt;
   let totalHomeLoanInterest = 0;
   let totalInvestLoanInterest = 0;
@@ -135,6 +126,11 @@ export function runDebtRecycling(
     if (homeLoanBal > 0) {
       const pp = Math.min(homeLoanBal, payment - homeInt);
       homeLoanBal = Math.max(0, homeLoanBal - pp);
+    }
+
+    if (investLoanType === 'pi' && investLoanBal > 0) {
+      const investPrincipal = Math.min(investLoanBal, investPayment - investInt);
+      investLoanBal = Math.max(0, investLoanBal - investPrincipal);
     }
 
     totalHomeLoanInterest += homeInt;

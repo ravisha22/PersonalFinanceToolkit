@@ -6,23 +6,25 @@ import { StatCard } from '../../components/ui/StatCard';
 import { BarCompare } from '../../components/ui/BarCompare';
 import { Assumptions } from '../../components/shared/Assumptions';
 import { Disclaimer } from '../../components/shared/Disclaimer';
+import { AboutCalc } from '../../components/shared/AboutCalc';
 import { runOffset, runDebtRecycling, monthlyRepayment } from './engine';
 import { formatCurrency, formatCompact, formatDiff } from '../../utils/formatters';
 
 const DEFAULTS = {
-  loan: 925000,
-  rate: 5.7,
-  years: 15,
-  etfReturn: 8.5,
-  divYield: 2.5,
-  margTax: 47,
+  loan: 500000,
+  rate: 6.0,
+  years: 30,
+  etfReturn: 8.0,
+  divYield: 2.0,
+  margTax: 34.5,
   cgtDiscount: 50,
   amountsStr: '50000,100000,150000,200000',
 };
 
 const ASSUMPTIONS = [
   'Home loan: P&I repayments, monthly compounding, fixed rate for the full term.',
-  'Investment loan (DR): Interest-only at the same rate; balance stays constant at the invested amount.',
+  'Investment loan (IO mode): Interest-only; balance stays constant at the invested amount throughout.',
+  'Investment loan (P&I mode): Principal & interest repayments; loan balance reduces to $0 at end of term.',
   'ETF returns: Smooth annual return, dividends reinvested each month. No franking credits modelled.',
   'Tax deductions: Investment interest deducted at your marginal rate each month.',
   'CGT discount: 50% discount applied to unrealised gains (assets held >12 months).',
@@ -35,6 +37,7 @@ export function OffsetVsDR() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [viewYear, setViewYear] = useState<number>(params.years);
+  const [drLoanType, setDrLoanType] = useState<'io' | 'pi'>('io');
 
   const amounts = useMemo(
     () =>
@@ -60,6 +63,7 @@ export function OffsetVsDR() {
           params.divYield,
           params.margTax,
           params.cgtDiscount,
+          drLoanType,
         );
         return {
           amount: amt,
@@ -68,7 +72,7 @@ export function OffsetVsDR() {
           drAdvantage: dr.netWealthPostCGT - amt,
         };
       });
-  }, [params]);
+  }, [params, drLoanType]);
 
   const sel = results.find(r => r.amount === selectedAmount) ?? results[0] ?? null;
 
@@ -130,6 +134,7 @@ export function OffsetVsDR() {
             Loan: <span className="text-slate-700 dark:text-slate-300">{formatCurrency(params.loan)}</span>
             {' · '}Term: <span className="text-slate-700 dark:text-slate-300">{params.years} yr P&amp;I</span>
             {' · '}Repayment: <span className="text-slate-700 dark:text-slate-300">{formatCurrency(mPmt)}/mo</span>
+            {' · '}DR loan: <span className="text-blue-600 dark:text-blue-400">{drLoanType === 'io' ? 'Interest-Only' : 'P&I'}</span>
             {' · '}After-tax DR cost:{' '}
             <span className="text-blue-600 dark:text-blue-400">{afterTaxDRCost}%</span>
           </p>
@@ -146,12 +151,58 @@ export function OffsetVsDR() {
         </button>
       </div>
 
+      <AboutCalc concepts={[
+        {
+          term: 'What is a mortgage offset account?',
+          definition: 'A savings or transaction account linked to your home loan. The balance is subtracted from your loan principal before interest is calculated. Example: $100,000 in offset on a $500,000 loan means you only pay interest on $400,000. The cash stays accessible — it\'s not a repayment.',
+          link: 'https://en.wikipedia.org/wiki/Offset_mortgage',
+          linkLabel: 'Wikipedia: Offset mortgage',
+        },
+        {
+          term: 'What is debt recycling?',
+          definition: 'A strategy to convert non-deductible home loan debt into tax-deductible investment debt. You take equity from your home (or use savings) and borrow to invest in shares/ETFs. The interest on money borrowed to invest is tax-deductible — reducing the real cost of borrowing.',
+          link: 'https://www.ato.gov.au/individuals-and-families/investments-and-assets/interest-deductions-and-borrowing-expenses',
+          linkLabel: 'ATO: Interest deductions on investment loans',
+        },
+        {
+          term: 'Interest-Only (IO) vs Principal & Interest (P&I) investment loan',
+          definition: 'IO: you only pay interest each month; the loan balance stays constant. Tax deductions stay high throughout. P&I: you pay interest plus principal; balance reduces to $0 at end of term. Tax deductions decrease over time but you build equity. IO is more common in practice for debt recycling.',
+          link: 'https://moneysmart.gov.au/home-loans/interest-only-home-loans',
+          linkLabel: 'MoneySmart: Interest-only home loans',
+        },
+        {
+          term: 'What is "net wealth post-CGT"?',
+          definition: 'Your portfolio value minus the Capital Gains Tax (CGT) you would owe if you sold today, minus any outstanding investment loan balance. For IO loans, this looks low early on because the full loan balance is still outstanding — not a flaw; DR\'s advantage compounds over time via tax deductions.',
+          link: 'https://en.wikipedia.org/wiki/Capital_gains_tax_in_Australia',
+          linkLabel: 'Wikipedia: Capital gains tax in Australia',
+        },
+      ]} />
+
       {/* Settings Panel */}
       {settingsOpen && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
             All Parameters
           </p>
+          {/* IO vs P&I toggle */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500 font-medium">
+              DR Investment Loan Type
+            </label>
+            <div className="flex gap-2">
+              {(['io', 'pi'] as const).map(t => (
+                <button key={t} onClick={() => setDrLoanType(t)}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all ${drLoanType === t ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-blue-400'}`}>
+                  {t === 'io' ? 'Interest-Only (IO)' : 'Principal & Interest (P&I)'}
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500">
+              {drLoanType === 'io'
+                ? 'IO: loan balance stays fixed; maximum tax deductions throughout. Most common in practice.'
+                : 'P&I: loan repays over the term; deductions reduce as balance falls but you build equity.'}
+            </p>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <NumberInput
               label="Loan Amount"
@@ -242,40 +293,62 @@ export function OffsetVsDR() {
 
       {/* Quick Controls (when settings closed) */}
       {!settingsOpen && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-          <SliderControl
-            label="Mortgage Rate"
-            value={params.rate}
-            onChange={v => setParams({ rate: v })}
-            min={2}
-            max={12}
-            step={0.1}
-            suffix="%"
-          />
-          <SliderControl
-            label="ETF Return (pa)"
-            value={params.etfReturn}
-            onChange={v => setParams({ etfReturn: v })}
-            min={2}
-            max={16}
-            step={0.5}
-            suffix="%"
-          />
-          <SliderControl
-            label="Marginal Tax"
-            value={params.margTax}
-            onChange={v => setParams({ margTax: v })}
-            min={0}
-            max={49}
-            step={1}
-            suffix="%"
-          />
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+            <SliderControl
+              label="Mortgage Rate"
+              value={params.rate}
+              onChange={v => setParams({ rate: v })}
+              min={2}
+              max={12}
+              step={0.1}
+              suffix="%"
+            />
+            <SliderControl
+              label="ETF Return (pa)"
+              value={params.etfReturn}
+              onChange={v => setParams({ etfReturn: v })}
+              min={2}
+              max={16}
+              step={0.5}
+              suffix="%"
+            />
+            <SliderControl
+              label="Marginal Tax"
+              value={params.margTax}
+              onChange={v => setParams({ margTax: v })}
+              min={0}
+              max={49}
+              step={1}
+              suffix="%"
+            />
+          </div>
+          {/* IO/PI quick toggle */}
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">DR Loan:</span>
+            {(['io', 'pi'] as const).map(t => (
+              <button key={t} onClick={() => setDrLoanType(t)}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all ${drLoanType === t ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-blue-400'}`}>
+                {t === 'io' ? 'Interest-Only' : 'P&I'}
+              </button>
+            ))}
+            <span className="text-[10px] text-slate-400 dark:text-slate-500">
+              {drLoanType === 'io'
+                ? 'Loan balance stays fixed; maximum tax deductions.'
+                : 'Loan repays over the term; deductions decrease as balance falls.'}
+            </span>
+          </div>
         </div>
       )}
 
       {/* Summary Table */}
       {results.length > 0 ? (
-        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <>
+          <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
+            Each row compares using the same amount of cash in two ways: parking it in your offset account (reducing interest charged on your loan) vs investing via debt recycling (borrowing to invest, making interest tax-deductible). <strong className="text-slate-700 dark:text-slate-300">DR Net Wealth = portfolio value minus the outstanding investment loan minus estimated CGT if sold today.</strong> For IO loans this will appear low early on — DR's advantage grows via compounding tax deductions.{' '}
+            <a href="https://www.ato.gov.au/individuals-and-families/investments-and-assets/interest-deductions-and-borrowing-expenses" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">ATO: Interest deductions ↗</a>
+          </div>
+          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
           <table className="w-full text-xs border-collapse">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800">
@@ -342,6 +415,7 @@ export function OffsetVsDR() {
             </tbody>
           </table>
         </div>
+        </>
       ) : (
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-8 text-center text-sm text-slate-400">
           Enter your loan details and comparison amounts above to see results.
@@ -401,7 +475,12 @@ export function OffsetVsDR() {
 
       {/* Year-by-Year Chart */}
       {sel && yearlyComp.length > 0 && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
+        <>
+          <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
+            The chart tracks <strong className="text-slate-700 dark:text-slate-300">net wealth over time</strong> for the selected amount. Offset net wealth = your cash (flat line, since the offset funds aren't invested). DR net wealth = portfolio value minus loan minus CGT. Click a year button to see a snapshot. The crossover point (where DR exceeds Offset) depends on your ETF return, tax rate, and loan type.{' '}
+            <a href="https://moneysmart.gov.au/shares/how-investments-are-taxed" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">MoneySmart: How investments are taxed ↗</a>
+          </div>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
               Year-by-Year — {formatCurrency(sel.amount)}
@@ -461,6 +540,7 @@ export function OffsetVsDR() {
             height={260}
           />
         </div>
+        </>
       )}
 
       <Assumptions items={ASSUMPTIONS} />

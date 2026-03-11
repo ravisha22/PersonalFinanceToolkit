@@ -20,12 +20,24 @@
 | v0.10.0 | Phase 10   | Calculator: Savings Rate Impact | Pushed |
 | v0.11.0 | Phase 11   | Calculator: Property Research Tool | Pushed |
 | v1.0.0  | Phase 12   | README, LICENSE, CONTRIBUTING, GitHub Actions deploy | Pushed |
+| v1.1.0  | Post-v1    | UX polish: dark mode fix, branding rename, default reset, AboutCalc, output explanations, IO/PI toggle, DR framing | Pushed |
 
 ---
 
-## PROJECT COMPLETE — v1.0.0
+## PROJECT COMPLETE — v1.1.0
 
-All 12 phases delivered. 8 calculators live.
+All 12 phases delivered + v1.1.0 UX polish. 8 calculators live.
+
+### v1.1.0 Changes (post-v1.0)
+
+- **Dark mode**: Added `@custom-variant dark (&:where(.dark, .dark *));` to `src/index.css` — Tailwind v4 requires this for class-based dark mode (the `dark:` prefix was silently no-oping without it)
+- **Branding**: "AusFinTools" → "Australian Personal Finance Tools" everywhere (Navbar, Footer, Landing, README, CONTRIBUTING, package.json, index.html)
+- **Neutral defaults**: All 8 calculators updated with round-number, non-personal defaults (e.g., income $85k, rate 6%, margTax 34.5%)
+- **AboutCalc component**: New `src/components/shared/AboutCalc.tsx` — collapsible "About this calculator" accordion with plain-English definitions and reputable source links (Wikipedia, ATO, MoneySmart). Added to all 8 calculators.
+- **Output explanations**: Plain-text explainer divs added above key data panels in all calculators (OffsetVsDR, DirectVsDR, HouseAffordability, InvestmentCompare, SavingsRate) — each with a free/public source link (MoneySmart, ATO, Wikipedia)
+- **IO/PI toggle (Offset vs DR)**: `runDebtRecycling` engine now accepts optional `investLoanType: 'io' | 'pi'`, with PI amortisation logic. OffsetVsDR.tsx adds toggle buttons + 2-line plain-English explanation. Separate `useState` used (not useUrlParams) since it's a union type.
+- **Direct vs DR framing fix**: AboutCalc explains why DR shows lower net wealth early (IO loan stays on books — net wealth = portfolio minus loan). Breakeven callout + result explanations added.
+- **SuperBridge**: Added editable "Current Super Balance" NumberInput (previously hardcoded, was non-interactive)
 
 ### What was built
 
@@ -68,6 +80,7 @@ All 12 phases delivered. 8 calculators live.
 
 - React Router v7: createBrowserRouter + RouterProvider in App.tsx
 - Tailwind v4: @tailwindcss/vite plugin, no config file, @import "tailwindcss" in CSS
+- Tailwind v4 dark mode: requires `@custom-variant dark (&:where(.dark, .dark *));` in index.css — without it, `dark:` classes are silently ignored even when the `dark` class is on `<html>`
 - TypeScript strict: no any, all engine functions fully typed
 - Recharts Tooltip formatter: value is ValueType | undefined, always guard
 - URL params: useUrlParams<T>(defaults) for all calculator state — no localStorage

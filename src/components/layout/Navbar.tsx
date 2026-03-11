@@ -24,7 +24,7 @@ export function Navbar() {
           {/* Logo */}
           <NavLink to="/" className="flex items-center gap-2 font-bold text-blue-600 dark:text-blue-400 text-lg shrink-0">
             <span className="font-mono">$</span>
-            <span>AusFinTools</span>
+            <span>AU Personal Finance</span>
           </NavLink>
 
           {/* Desktop nav */}

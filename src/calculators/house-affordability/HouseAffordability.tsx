@@ -7,19 +7,20 @@ import { Toggle } from '../../components/ui/Toggle';
 import { BarCompare } from '../../components/ui/BarCompare';
 import { Assumptions } from '../../components/shared/Assumptions';
 import { Disclaimer } from '../../components/shared/Disclaimer';
+import { AboutCalc } from '../../components/shared/AboutCalc';
 import { calculateAffordability, type AustralianState } from './engine';
 import { formatCurrency, formatPercent, formatPct } from '../../utils/formatters';
 
 const DEFAULTS = {
-  grossIncome: 250000,
+  grossIncome: 100000,
   partnerIncome: 0,
   existingMonthlyDebts: 0,
   deposit: 150000,
-  propertyPrice: 850000,
+  propertyPrice: 700000,
   state: 'VIC' as AustralianState,
   firstHomeBuyer: false,
   isNewHome: false,
-  rate: 5.7,
+  rate: 6.0,
   loanTerm: 30,
 };
 
@@ -85,6 +86,27 @@ export function HouseAffordability() {
         </p>
       </div>
 
+      <AboutCalc concepts={[
+        {
+          term: 'What is the APRA serviceability buffer?',
+          definition: 'APRA (the banking regulator) requires lenders to check you can still afford repayments at your actual interest rate plus 3%. So for a 6% loan, your repayments are assessed at 9%. This stress-tests your ability to keep paying if rates rise.',
+          link: 'https://www.apra.gov.au/changes-serviceability-guidance',
+          linkLabel: 'APRA: Serviceability guidance',
+        },
+        {
+          term: 'What is Lenders Mortgage Insurance (LMI)?',
+          definition: 'Insurance required by the lender when your deposit is less than 20% of the property value (loan-to-value ratio above 80%). LMI protects the lender if you default — not you. It can add thousands to your purchase costs and is typically capitalised into your loan.',
+          link: 'https://en.wikipedia.org/wiki/Lenders_mortgage_insurance',
+          linkLabel: 'Wikipedia: Lenders mortgage insurance',
+        },
+        {
+          term: 'What is stamp duty?',
+          definition: 'A state government tax payable on property transactions. It is calculated as a percentage of the purchase price and varies significantly between states. First home buyers may receive full or partial exemptions. It must be paid upfront and is not part of your mortgage.',
+          link: 'https://en.wikipedia.org/wiki/Stamp_duty_in_Australia',
+          linkLabel: 'Wikipedia: Stamp duty in Australia',
+        },
+      ]} />
+
       {/* Inputs */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
         <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Buyer Details</p>
@@ -117,6 +139,10 @@ export function HouseAffordability() {
       </div>
 
       {/* Affordability Banner */}
+      <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg px-4 py-3 leading-relaxed">
+        <strong className="text-slate-700 dark:text-slate-300">Borrowing capacity</strong> is estimated using the APRA method: your income finances repayments assessed at rate + 3%, capped at 30% of gross income for housing. <strong className="text-slate-700 dark:text-slate-300">LMI</strong> is added when your deposit is under 20% (LVR above 80%). <strong className="text-slate-700 dark:text-slate-300">Stamp duty</strong> varies by state and first-home-buyer status.{' '}
+        <a href="https://moneysmart.gov.au/home-loans/how-much-can-i-borrow" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400">MoneySmart: How much can I borrow ↗</a>
+      </div>
       <div className={`rounded-xl px-5 py-4 border
         ${result.affordableWithDeposit
           ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800'

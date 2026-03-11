@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Tabs } from '../../components/ui/Tabs';
 import { Assumptions } from '../../components/shared/Assumptions';
 import { Disclaimer } from '../../components/shared/Disclaimer';
+import { AboutCalc } from '../../components/shared/AboutCalc';
 import { SuperSalarySacrifice } from './SuperSalarySacrifice';
 import { DebtRecyclingTax } from './DebtRecyclingTax';
 import { NegativeGearing } from './NegativeGearing';
@@ -44,10 +45,10 @@ const ASSUMPTIONS: Record<string, string[]> = {
 
 export function TaxSavingsGuide() {
   const [activeTab, setActiveTab] = useState('super');
-  const [grossSalary, setGrossSalary] = useState(250000);
+  const [grossSalary, setGrossSalary] = useState(85000);
   const [investLoanBal, setInvestLoanBal] = useState(300000);
-  const [rate, setRate] = useState(5.7);
-  const [margTax, setMargTax] = useState(47);
+  const [rate, setRate] = useState(6.0);
+  const [margTax, setMargTax] = useState(34.5);
 
   return (
     <div className="space-y-6">
@@ -61,6 +62,27 @@ export function TaxSavingsGuide() {
           Based on 2024-25 ATO rates.
         </p>
       </div>
+
+      <AboutCalc concepts={[
+        {
+          term: 'What is salary sacrifice to superannuation?',
+          definition: 'You ask your employer to redirect part of your pre-tax salary into super. That money is taxed at 15% (the super contribution rate) instead of your marginal income tax rate. If you earn $85k, your marginal rate is ~34.5% — so sacrificing $10,000 saves $1,950 in tax, subject to the $30,000 annual concessional cap.',
+          link: 'https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super/salary-sacrificing-super',
+          linkLabel: 'ATO: Salary sacrificing into super',
+        },
+        {
+          term: 'What is negative gearing?',
+          definition: 'When your investment property\'s costs (mortgage interest, rates, insurance, maintenance) exceed the rent you receive, the loss is "negatively geared". You can deduct this loss from your other income (e.g., wages), reducing your total tax bill.',
+          link: 'https://en.wikipedia.org/wiki/Negative_gearing',
+          linkLabel: 'Wikipedia: Negative gearing',
+        },
+        {
+          term: 'What is Division 293 tax?',
+          definition: 'High earners (income + concessional super contributions over $250,000) pay an extra 15% tax on those contributions. This reduces the super tax benefit from 15% to effectively 30% for affected individuals.',
+          link: 'https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super/division-293-tax',
+          linkLabel: 'ATO: Division 293 tax',
+        },
+      ]} />
 
       <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 

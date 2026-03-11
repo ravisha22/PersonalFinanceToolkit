@@ -72,7 +72,7 @@ export function Landing() {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
-          Australian Personal Finance Calculators
+          Australian Personal Finance Tools
         </h1>
         <p className="text-slate-500 dark:text-slate-400 max-w-2xl">
           Free, privacy-first tools built for Australian investors. No sign-up, no tracking —
