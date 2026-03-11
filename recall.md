@@ -1,180 +1,109 @@
 # AusFinTools — Recall Log
 
-> This file is a running chain-of-thought log. Update it at every versioning gate.
-> It exists specifically to survive context compaction — always read this first when resuming.
+> Running chain-of-thought log. Read this first when resuming after context compaction.
 
 ---
 
 ## Versioning Gates
 
-| Version | Phase | Description | Pushed to GitHub |
-|---------|-------|-------------|-----------------|
-| v0.1.0  | Phase 0–1 | File reorganisation + Vite/React/TS/Tailwind v4/Vitest scaffold | ✅ Pushed |
-| v0.2.0  | Phase 2   | Australian data layer + shared math utils | ✅ Pushed |
+| Version | Phase | Description | Status |
+|---------|-------|-------------|--------|
+| v0.1.0  | Phase 0–1 | File reorg + scaffold | ✅ Pushed |
+| v0.2.0  | Phase 2   | Australian data layer + utils | ✅ Pushed |
+| v0.3.0  | Phase 3   | Shared UI + hooks + routing shell | ✅ Pushed |
 
 ---
 
-## Current State (as of v0.2.0)
+## Current State (as of v0.3.0)
 
 **Branch:** `main`
 
 ### Completed
-- [x] Phase 0: Seed files → `docs/` and `reference/`
-- [x] Phase 1: Vite 7 + React 19 + TypeScript + Tailwind CSS v4 + Vitest scaffolded
-- [x] Phase 2: Australian data layer
-  - `src/data/tax-brackets.ts` — TAX_BRACKETS_2024_25, calcIncomeTax, calcMedicareLevy, getMarginalRate, getEffectiveRate
-  - `src/data/super-rules.ts` — SUPER_RULES, maxAdditionalSacrifice, isDivision293
-  - `src/data/stamp-duty-tables.ts` — VIC + NSW full tables, QLD + WA stubs, calculateStampDuty()
-  - `src/data/constants.ts` — HELP thresholds, CGT discounts, LMI estimates, APRA buffer, CURRENT_TAX_YEAR
-  - `src/utils/formatters.ts` — formatCompact, formatCurrency, formatPercent, formatPct, formatYears, formatDiff
-  - `src/utils/financial.ts` — monthlyRepayment, futureValue, futureValueAnnuity, yearsToTarget, projectGrowth, estimateLMI, maxBorrowingCapacity
+- [x] Phase 0–1: File reorg + Vite/React 19/TS/Tailwind v4/Vitest scaffold
+- [x] Phase 2: All `src/data/` and `src/utils/` files
+- [x] Phase 3: Full shared UI library, hooks, routing
+  - `src/hooks/useTheme.ts` — URL param persist, dark class on `<html>`
+  - `src/hooks/useUrlParams.ts` — generic URL state sync
+  - `src/components/ui/` — SliderControl, NumberInput, StatCard, Tabs, Toggle, BarCompare
+  - `src/components/layout/` — Navbar (mobile hamburger), Footer, Layout
+  - `src/components/shared/` — Disclaimer, Assumptions (collapsible)
+  - `src/pages/Landing.tsx` — 8-card landing page
+  - `src/App.tsx` — React Router v7 createBrowserRouter, all 8 routes lazy-loaded
+  - Calculator stubs in place for all 8 routes
 
-### Up Next (Phase 3)
-- [ ] `src/hooks/useTheme.ts` — system pref default, URL param persist, `dark` class on `<html>`
-- [ ] `src/hooks/useUrlParams.ts` — generic URL state sync hook
-- [ ] `src/components/ui/SliderControl.tsx`
-- [ ] `src/components/ui/NumberInput.tsx`
-- [ ] `src/components/ui/StatCard.tsx`
-- [ ] `src/components/ui/Tabs.tsx`
-- [ ] `src/components/ui/Toggle.tsx`
-- [ ] `src/components/ui/BarCompare.tsx` (Recharts)
-- [ ] `src/components/layout/Navbar.tsx` — links to all 8 calculators + theme toggle + mobile hamburger
-- [ ] `src/components/layout/Footer.tsx`
-- [ ] `src/components/layout/Layout.tsx`
-- [ ] `src/components/shared/Disclaimer.tsx`
-- [ ] `src/components/shared/Assumptions.tsx`
-- [ ] `src/App.tsx` — React Router v7 + all routes + landing page
+### Up Next (Phase 4)
+Port reference/offset-vs-debt-recycling.jsx to typed TS:
+- [ ] src/calculators/offset-vs-dr/types.ts
+- [ ] src/calculators/offset-vs-dr/engine.ts
+- [ ] src/calculators/offset-vs-dr/engine.test.ts
+- [ ] src/calculators/offset-vs-dr/OffsetVsDR.tsx (full UI)
 
 ---
 
 ## Full Phase Roadmap
 
-| Phase | Version Gate | Description | Status |
-|-------|-------------|-------------|--------|
-| 0–1   | v0.1.0 ✓   | File reorg + scaffold | ✅ Done |
-| 2     | v0.2.0 ✓   | Australian data layer + utils | ✅ Done |
-| 3     | v0.3.0      | Shared UI components + theme + routing shell | 🔄 Next |
-| 4     | v0.4.0      | Calculator: Offset vs Debt Recycling | |
-| 5     | v0.5.0      | Calculator: Direct Investing vs DR | |
-| 6     | v0.6.0      | Calculator: Tax Savings Guide (4 sub-tabs) | |
-| 7     | v0.7.0      | Calculator: House Purchasing Affordability | |
-| 8     | v0.8.0      | Calculator: FIRE Suite (5 sub-tabs) | |
-| 9     | v0.9.0      | Calculator: Investment Comparison | |
-| 10    | v0.10.0     | Calculator: Savings Rate Impact | |
-| 11    | v0.11.0     | Calculator: Property Research Tool | |
-| 12    | v1.0.0      | README, LICENSE, CONTRIBUTING, GitHub Actions deploy | |
-
-**Rule: After every version gate, push to `git push origin main` before proceeding.**
+| Phase | Version | Description | Status |
+|-------|---------|-------------|--------|
+| 0–1   | v0.1.0  | File reorg + scaffold | ✅ |
+| 2     | v0.2.0  | Data layer + utils | ✅ |
+| 3     | v0.3.0  | Shared UI + routing | ✅ |
+| 4     | v0.4.0  | Offset vs DR | 🔄 Next |
+| 5     | v0.5.0  | Direct Investing vs DR | |
+| 6     | v0.6.0  | Tax Savings Guide (4 sub-tabs) | |
+| 7     | v0.7.0  | House Affordability | |
+| 8     | v0.8.0  | FIRE Suite (5 sub-tabs) | |
+| 9     | v0.9.0  | Investment Comparison | |
+| 10    | v0.10.0 | Savings Rate Impact | |
+| 11    | v0.11.0 | Property Research Tool | |
+| 12    | v1.0.0  | README, LICENSE, deploy workflow | |
 
 ---
 
-## Key Technical Decisions (locked in)
-
-- **Tailwind v4** — `@tailwindcss/vite` plugin. No `tailwind.config.js`. CSS: `@import "tailwindcss";`
-- **React 19 + React Router v7** (`react-router-dom@^7`) — use `createBrowserRouter` + `RouterProvider`
-- **Recharts 3** for charts
-- **No localStorage** — URL params only via `useUrlParams` hook
-- **All monetary values in AUD** — no cents-as-integers
-- **All financial data in `src/data/`** — engines import constants, never hardcode
-- **Strict TypeScript** — no `any`
-- **Monthly compounding** throughout
-
----
-
-## Australian Financial Data (2024-25) — Quick Reference
-
-### Tax Brackets (Stage 3 cuts, from 1 July 2024)
-- $0–$18,200: 0%
-- $18,201–$45,000: 16%
-- $45,001–$135,000: 30%
-- $135,001–$190,000: 37%
-- $190,001+: 45%
-- Medicare levy: +2%
-
-### Super
-- SG rate: 12% (from 1 July 2025)
-- Concessional cap: $30,000
-- Division 293 threshold: $250,000 (extra 15%)
-- Preservation age: 60
-- Carry-forward: up to 5 yrs unused cap if total super < $500k
-
-### Stamp Duty — VIC FHB
-- < $600k: full exemption
-- $600k–$750k: sliding scale
-- > $750k: full duty
-
-### CGT
-- Individual >12 months: 50% discount
-- Super fund: 33.33% discount
-- Company: no discount
-
----
-
-## Architecture
+## Architecture (current)
 
 ```
 src/
-├── App.tsx                    # React Router shell + routes
-├── main.tsx                   # Entry point
-├── index.css                  # @import "tailwindcss"
-├── vite-env.d.ts
-├── data/                      ✅ Done
-│   ├── tax-brackets.ts
-│   ├── super-rules.ts
-│   ├── stamp-duty-tables.ts
-│   └── constants.ts
-├── utils/                     ✅ Done
-│   ├── formatters.ts
-│   └── financial.ts
-├── hooks/                     🔄 Phase 3
-│   ├── useTheme.ts
-│   └── useUrlParams.ts
+├── App.tsx                    ✅ React Router v7 createBrowserRouter, lazy imports
+├── pages/Landing.tsx          ✅ 8-card landing page
+├── data/                      ✅ tax-brackets, super-rules, stamp-duty-tables, constants
+├── utils/                     ✅ formatters, financial
+├── hooks/                     ✅ useTheme, useUrlParams
 ├── components/
-│   ├── layout/                🔄 Phase 3
-│   │   ├── Navbar.tsx
-│   │   ├── Footer.tsx
-│   │   └── Layout.tsx
-│   ├── ui/                    🔄 Phase 3
-│   │   ├── SliderControl.tsx
-│   │   ├── NumberInput.tsx
-│   │   ├── StatCard.tsx
-│   │   ├── Tabs.tsx
-│   │   ├── Toggle.tsx
-│   │   └── BarCompare.tsx
-│   └── shared/                🔄 Phase 3
-│       ├── Disclaimer.tsx
-│       └── Assumptions.tsx
-└── calculators/               🔄 Phases 4–11
-    ├── offset-vs-dr/
-    ├── direct-vs-dr/
-    ├── tax-savings/
-    ├── house-affordability/
-    ├── fire/
-    ├── investment-compare/
-    ├── savings-rate/
-    └── property-research/
+│   ├── layout/                ✅ Navbar, Footer, Layout
+│   ├── ui/                    ✅ SliderControl, NumberInput, StatCard, Tabs, Toggle, BarCompare
+│   └── shared/                ✅ Disclaimer, Assumptions
+└── calculators/               stubs in place for all 8 (Phases 4–11)
 ```
 
 ---
 
-## Known Issues / Watch Points
+## Key Technical Decisions
 
-- React Router v7 uses `createBrowserRouter` + `RouterProvider` (not `<BrowserRouter>` wrapper)
-- Recharts 3 API: `<ResponsiveContainer>` + named chart types, same as v2
-- Tailwind v4: no arbitrary values need `[]` notation — use standard classes
-- `npm run build` includes `tsc -b` — TypeScript errors will fail the build
+- React Router v7: createBrowserRouter + RouterProvider
+- Lazy imports: each calculator = separate JS chunk
+- Theme: useTheme hook → ?theme= URL param → dark class on <html>
+- URL params: useUrlParams<T>(defaults) for all calculator state
+- Tailwind v4: no config file, dark: prefix works via CSS cascade
+- Recharts Tooltip: value is ValueType | undefined — guard with typeof checks
+
+---
+
+## Australian Data Quick Reference
+
+Tax 2024-25 (Stage 3): 0% / 16% / 30% / 37% / 45% + 2% Medicare
+Super: 12% SG, $30k concessional cap, Div 293 at $250k, preservation age 60
+VIC FHB: full exemption <$600k, sliding $600k–$750k, full duty >$750k
+CGT: individual 50% discount (>12mo), super 33.33%, company nil
 
 ---
 
 ## Bug Fixes Log
 
-*(none yet)*
+- v0.3.0: BarCompare Tooltip formatter — guard undefined value with typeof check
 
 ---
 
-## Deferred Items
+## Deferred
 
-- Stamp duty: QLD, WA, SA, TAS, ACT, NT — stub tables added, full tables post-v1.0
-- Franking credits on ETF dividends — not modelled (noted in Assumptions)
-- Inflation adjustments — not modelled
-- Rate changes / variable rate scenarios — out of scope v1.0
+- Stamp duty full tables: QLD, WA, SA, TAS, ACT, NT (stubs in place)
+- Franking credits, inflation, variable rates — not modelled v1.0
