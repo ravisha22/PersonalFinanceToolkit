@@ -1,4 +1,4 @@
-import{j as t}from"./index-C4LUoPQH.js";function l({label:r,checked:e,onChange:n,description:s}){return t.jsxs("div",{className:"flex items-start gap-3",children:[t.jsx("button",{role:"switch","aria-checked":e,onClick:()=>n(!e),className:`
+import{j as t}from"./index-CS7YcJzC.js";function l({label:r,checked:e,onChange:n,description:s}){return t.jsxs("div",{className:"flex items-start gap-3",children:[t.jsx("button",{role:"switch","aria-checked":e,onClick:()=>n(!e),className:`
           relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent
           transition-colors duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 mt-0.5
           ${e?"bg-blue-600":"bg-slate-300 dark:bg-slate-600"}

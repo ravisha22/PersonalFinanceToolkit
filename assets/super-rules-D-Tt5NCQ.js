@@ -1,4 +1,4 @@
-import{j as r}from"./index-C4LUoPQH.js";function d({tabs:a,activeTab:t,onChange:s}){return r.jsx("div",{className:"flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex-wrap",children:a.map(e=>r.jsx("button",{onClick:()=>s(e.id),className:`
+import{j as r}from"./index-CS7YcJzC.js";function d({tabs:a,activeTab:t,onChange:s}){return r.jsx("div",{className:"flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex-wrap",children:a.map(e=>r.jsx("button",{onClick:()=>s(e.id),className:`
             px-4 py-2 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap
             ${t===e.id?"bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm":"text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}
           `,children:e.label},e.id))})}const i={concessionalCap:3e4,taxRateInSuper:.15,division293Threshold:25e4,division293Rate:.15,preservationAge:60,carryForwardBalanceThreshold:5e5};function l(a,t){return a+t>i.division293Threshold}export{i as S,d as T,l as i};
