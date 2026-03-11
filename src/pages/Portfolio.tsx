@@ -238,7 +238,7 @@ export function Portfolio() {
       <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-5">
         <SectionHeader
           num={6} title="Living Expenses" color="bg-rose-500"
-          subtitle="Annual amounts for each category. Enter what applies to you — leave others at zero. Total is used in FIRE and Savings Rate calculations."
+          subtitle="Monthly amounts for each category. Enter what applies to you — leave others at zero. Total annual expenses are used in FIRE and Savings Rate calculations."
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           {EXPENSE_FIELDS.map(({ key, label }) => (
@@ -247,8 +247,9 @@ export function Portfolio() {
               label={label}
               value={portfolio[key] as number}
               onChange={set(key)}
-              min={0} max={500000} step={100}
+              min={0} max={50000} step={50}
               prefix="$"
+              suffix="/mo"
             />
           ))}
         </div>
@@ -258,15 +259,20 @@ export function Portfolio() {
             ? 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800'
             : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
         }`}>
-          <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">Total Annual Expenses</span>
+          <div>
+            <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">Monthly Total</span>
+            {expTotal > 0 && (
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Annual: {formatCurrency(expTotal)}</p>
+            )}
+          </div>
           <span className={`font-mono font-bold text-sm ${expTotal > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400'}`}>
-            {expTotal > 0 ? formatCurrency(expTotal) : '—'}
+            {expTotal > 0 ? formatCurrency(expTotal / 12) : '—'}
           </span>
         </div>
         {portfolio.grossSalary > 0 && expTotal > 0 && (
           <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2">
             Implied annual savings: {formatCurrency(Math.max(0, portfolio.grossSalary - expTotal))}
-            {' '}({Math.round(Math.max(0, (portfolio.grossSalary - expTotal) / portfolio.grossSalary) * 100)}% savings rate before tax)
+            {' '}({Math.round(Math.max(0, (portfolio.grossSalary - expTotal) / portfolio.grossSalary) * 100)}% savings rate before tax — expenses are {formatCurrency(expTotal)} pa)
           </p>
         )}
       </div>

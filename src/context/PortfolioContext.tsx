@@ -52,12 +52,13 @@ export const PORTFOLIO_EMPTY: PortfolioData = {
 };
 
 export function totalAnnualExpenses(p: PortfolioData): number {
+  // Fields store monthly amounts; multiply by 12 for annual total
   return (
     p.expRent + p.expGroceries + p.expDining + p.expUtilities +
     p.expInternet + p.expTransport + p.expHealth + p.expInsurance +
     p.expEntertainment + p.expClothing + p.expEducation + p.expChildcare +
     p.expTravel + p.expGym + p.expHomeMaint + p.expPets + p.expMisc
-  );
+  ) * 12;
 }
 
 interface PortfolioContextType {

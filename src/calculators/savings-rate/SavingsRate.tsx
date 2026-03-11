@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { SliderControl } from '../../components/ui/SliderControl';
 import { NumberInput } from '../../components/ui/NumberInput';
+import { PortfolioField } from '../../components/ui/PortfolioField';
 import { StatCard } from '../../components/ui/StatCard';
 import { Assumptions } from '../../components/shared/Assumptions';
 import { Disclaimer } from '../../components/shared/Disclaimer';
@@ -23,14 +24,15 @@ const ASSUMPTIONS = [
 
 export function SavingsRate() {
   const { portfolio } = usePortfolio();
-  const [income, setIncome] = useState(() => portfolio.grossSalary > 0 ? portfolio.grossSalary : 85000);
-  const [currentNW, setCurrentNW] = useState(() =>
-    (portfolio.savingsBalance + portfolio.etfValue) > 0
-      ? portfolio.savingsBalance + portfolio.etfValue
-      : 200000
-  );
+
+  const [incomeOverride, setIncomeOverride] = useState(85000);
+  const [currentNWOverride, setCurrentNWOverride] = useState(200000);
   const [returnRate, setReturnRate] = useState(7);
   const [savingsRate, setSavingsRate] = useState(30);
+
+  const portfolioNW = portfolio.savingsBalance + portfolio.etfValue;
+  const income = portfolio.grossSalary > 0 ? portfolio.grossSalary : incomeOverride;
+  const currentNW = portfolioNW > 0 ? portfolioNW : currentNWOverride;
 
   const result = useMemo(
     () => yearsToFIREBySavingsRate(income, currentNW, returnRate, savingsRate),
@@ -101,24 +103,14 @@ export function SavingsRate() {
 
       {/* Inputs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-        <NumberInput
-          label="Annual After-Tax Income"
-          value={income}
-          onChange={setIncome}
-          min={20000}
-          max={1000000}
-          step={5000}
-          prefix="$"
-        />
-        <NumberInput
-          label="Current Net Worth"
-          value={currentNW}
-          onChange={setCurrentNW}
-          min={0}
-          max={10000000}
-          step={10000}
-          prefix="$"
-        />
+        {portfolio.grossSalary > 0
+          ? <PortfolioField label="Annual After-Tax Income" value={income} prefix="$" />
+          : <NumberInput label="Annual After-Tax Income" value={incomeOverride} onChange={setIncomeOverride} min={20000} max={1000000} step={5000} prefix="$" />
+        }
+        {portfolioNW > 0
+          ? <PortfolioField label="Current Net Worth" value={currentNW} prefix="$" />
+          : <NumberInput label="Current Net Worth" value={currentNWOverride} onChange={setCurrentNWOverride} min={0} max={10000000} step={10000} prefix="$" />
+        }
         <SliderControl
           label="Investment Return (pa)"
           value={returnRate}

@@ -2,8 +2,10 @@ import { useMemo } from 'react';
 import { StatCard } from '../../components/ui/StatCard';
 import { SliderControl } from '../../components/ui/SliderControl';
 import { NumberInput } from '../../components/ui/NumberInput';
+import { PortfolioField } from '../../components/ui/PortfolioField';
 import { calculateDRTaxBenefit } from './engine';
 import { formatCurrency, formatPct } from '../../utils/formatters';
+import { usePortfolio } from '../../context/PortfolioContext';
 
 interface Props {
   investLoanBal: number;
@@ -15,6 +17,8 @@ interface Props {
 }
 
 export function DebtRecyclingTax({ investLoanBal, onInvestLoanBalChange, rate, onRateChange, margTax, onMargTaxChange }: Props) {
+  const { portfolio } = usePortfolio();
+
   const rows = useMemo(
     () => calculateDRTaxBenefit(investLoanBal, rate, margTax / 100, [1, 5, 10, 15, 20]),
     [investLoanBal, rate, margTax],
@@ -25,9 +29,18 @@ export function DebtRecyclingTax({ investLoanBal, onInvestLoanBalChange, rate, o
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-        <NumberInput label="Investment Loan Balance" value={investLoanBal} onChange={onInvestLoanBalChange} min={10000} max={2000000} step={10000} prefix="$" />
-        <SliderControl label="Interest Rate" value={rate} onChange={onRateChange} min={2} max={12} step={0.1} suffix="%" />
-        <SliderControl label="Marginal Tax Rate" value={margTax} onChange={onMargTaxChange} min={0} max={49} step={1} suffix="%" />
+        {portfolio.mortgageBalance > 0
+          ? <PortfolioField label="Investment Loan Balance" value={investLoanBal} prefix="$" />
+          : <NumberInput label="Investment Loan Balance" value={investLoanBal} onChange={onInvestLoanBalChange} min={10000} max={2000000} step={10000} prefix="$" />
+        }
+        {portfolio.mortgageRate > 0
+          ? <PortfolioField label="Interest Rate" value={rate} suffix="%" decimals={1} />
+          : <SliderControl label="Interest Rate" value={rate} onChange={onRateChange} min={2} max={12} step={0.1} suffix="%" />
+        }
+        {portfolio.margTax > 0
+          ? <PortfolioField label="Marginal Tax Rate" value={margTax} suffix="%" decimals={1} />
+          : <SliderControl label="Marginal Tax Rate" value={margTax} onChange={onMargTaxChange} min={0} max={49} step={1} suffix="%" />
+        }
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">

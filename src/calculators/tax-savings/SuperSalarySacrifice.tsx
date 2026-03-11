@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { SliderControl } from '../../components/ui/SliderControl';
 import { NumberInput } from '../../components/ui/NumberInput';
+import { PortfolioField } from '../../components/ui/PortfolioField';
 import { StatCard } from '../../components/ui/StatCard';
 import { calculateSuperSacrifice } from './engine';
 import { formatCurrency, formatCompact } from '../../utils/formatters';
 import { SUPER_RULES } from '../../data/super-rules';
 import { Toggle } from '../../components/ui/Toggle';
+import { usePortfolio } from '../../context/PortfolioContext';
 
 interface Props {
   grossSalary: number;
@@ -13,7 +15,12 @@ interface Props {
 }
 
 export function SuperSalarySacrifice({ grossSalary, onGrossSalaryChange }: Props) {
-  const [currentSuper, setCurrentSuper] = useState(200000);
+  const { portfolio } = usePortfolio();
+
+  // Super balance: locked to portfolio when set, user-editable override otherwise
+  const [superOverride, setSuperOverride] = useState(200000);
+  const currentSuper = portfolio.superBalance > 0 ? portfolio.superBalance : superOverride;
+
   const [sgRate, setSgRate] = useState(12);
   const [additionalSacrifice, setAdditionalSacrifice] = useState(10000);
   const [unusedCarryForward, setUnusedCarryForward] = useState(0);
@@ -40,8 +47,14 @@ export function SuperSalarySacrifice({ grossSalary, onGrossSalaryChange }: Props
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-        <NumberInput label="Gross Salary" value={grossSalary} onChange={onGrossSalaryChange} min={30000} max={1000000} step={5000} prefix="$" />
-        <NumberInput label="Current Super Balance" value={currentSuper} onChange={setCurrentSuper} min={0} max={5000000} step={10000} prefix="$" />
+        {portfolio.grossSalary > 0
+          ? <PortfolioField label="Gross Salary" value={grossSalary} prefix="$" />
+          : <NumberInput label="Gross Salary" value={grossSalary} onChange={onGrossSalaryChange} min={30000} max={1000000} step={5000} prefix="$" />
+        }
+        {portfolio.superBalance > 0
+          ? <PortfolioField label="Current Super Balance" value={currentSuper} prefix="$" />
+          : <NumberInput label="Current Super Balance" value={superOverride} onChange={setSuperOverride} min={0} max={5000000} step={10000} prefix="$" />
+        }
         <SliderControl label="Employer SG Rate" value={sgRate} onChange={setSgRate} min={9.5} max={15} step={0.5} suffix="%" />
         <NumberInput label="Extra Sacrifice (pa)" value={additionalSacrifice} onChange={setAdditionalSacrifice} min={0} max={30000} step={500} prefix="$" />
       </div>

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useUrlParams } from '../../hooks/useUrlParams';
 import { SliderControl } from '../../components/ui/SliderControl';
 import { NumberInput } from '../../components/ui/NumberInput';
+import { PortfolioField } from '../../components/ui/PortfolioField';
 import { StatCard } from '../../components/ui/StatCard';
 import { Toggle } from '../../components/ui/Toggle';
 import { BarCompare } from '../../components/ui/BarCompare';
@@ -51,13 +52,25 @@ export function HouseAffordability() {
     loanTerm: portfolio.mortgageYearsRemaining > 0 ? portfolio.mortgageYearsRemaining : DEFAULTS.loanTerm,
   });
 
+  // Effective values: portfolio wins over URL params when set
+  const effectiveGrossIncome = portfolio.grossSalary > 0 ? portfolio.grossSalary : params.grossIncome;
+  const effectiveDeposit = portfolio.savingsBalance > 0 ? portfolio.savingsBalance : params.deposit;
+  const effectivePropertyPrice = portfolio.propertyValue > 0 ? portfolio.propertyValue : params.propertyPrice;
+  const effectiveRate = portfolio.mortgageRate > 0 ? portfolio.mortgageRate : params.rate;
+  const effectiveLoanTerm = portfolio.mortgageYearsRemaining > 0 ? portfolio.mortgageYearsRemaining : params.loanTerm;
+
   const result = useMemo(
     () =>
       calculateAffordability({
         ...params,
+        grossIncome: effectiveGrossIncome,
+        deposit: effectiveDeposit,
+        propertyPrice: effectivePropertyPrice,
+        rate: effectiveRate,
+        loanTerm: effectiveLoanTerm,
         state: params.state as AustralianState,
       }),
-    [params],
+    [params, effectiveGrossIncome, effectiveDeposit, effectivePropertyPrice, effectiveRate, effectiveLoanTerm],
   );
 
   const affordabilityColor = result.affordabilityRatio <= 0.28
@@ -113,14 +126,23 @@ export function HouseAffordability() {
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
         <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Buyer Details</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <NumberInput label="Gross Income" value={params.grossIncome} onChange={v => setParams({ grossIncome: v })} min={30000} max={2000000} step={5000} prefix="$" />
+          {portfolio.grossSalary > 0
+            ? <PortfolioField label="Gross Income" value={effectiveGrossIncome} prefix="$" />
+            : <NumberInput label="Gross Income" value={params.grossIncome} onChange={v => setParams({ grossIncome: v })} min={30000} max={2000000} step={5000} prefix="$" />
+          }
           <NumberInput label="Partner Income" value={params.partnerIncome} onChange={v => setParams({ partnerIncome: v })} min={0} max={1000000} step={5000} prefix="$" />
           <NumberInput label="Other Monthly Debts" value={params.existingMonthlyDebts} onChange={v => setParams({ existingMonthlyDebts: v })} min={0} max={10000} step={100} prefix="$" suffix="/mo" />
-          <NumberInput label="Deposit / Savings" value={params.deposit} onChange={v => setParams({ deposit: v })} min={0} max={5000000} step={5000} prefix="$" />
+          {portfolio.savingsBalance > 0
+            ? <PortfolioField label="Deposit / Savings" value={effectiveDeposit} prefix="$" />
+            : <NumberInput label="Deposit / Savings" value={params.deposit} onChange={v => setParams({ deposit: v })} min={0} max={5000000} step={5000} prefix="$" />
+          }
         </div>
         <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 pt-2">Property Details</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <NumberInput label="Property Price" value={params.propertyPrice} onChange={v => setParams({ propertyPrice: v })} min={100000} max={5000000} step={10000} prefix="$" />
+          {portfolio.propertyValue > 0
+            ? <PortfolioField label="Property Price" value={effectivePropertyPrice} prefix="$" />
+            : <NumberInput label="Property Price" value={params.propertyPrice} onChange={v => setParams({ propertyPrice: v })} min={100000} max={5000000} step={10000} prefix="$" />
+          }
           <div className="flex flex-col gap-1.5">
             <label className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500 font-medium">State</label>
             <select
@@ -131,8 +153,14 @@ export function HouseAffordability() {
               {STATES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
-          <SliderControl label="Interest Rate" value={params.rate} onChange={v => setParams({ rate: v })} min={2} max={12} step={0.1} suffix="%" />
-          <NumberInput label="Loan Term" value={params.loanTerm} onChange={v => setParams({ loanTerm: Math.round(v) })} min={10} max={40} step={1} suffix=" yrs" />
+          {portfolio.mortgageRate > 0
+            ? <PortfolioField label="Interest Rate" value={effectiveRate} suffix="%" decimals={1} />
+            : <SliderControl label="Interest Rate" value={params.rate} onChange={v => setParams({ rate: v })} min={2} max={12} step={0.1} suffix="%" />
+          }
+          {portfolio.mortgageYearsRemaining > 0
+            ? <PortfolioField label="Loan Term" value={effectiveLoanTerm} suffix=" yrs" />
+            : <NumberInput label="Loan Term" value={params.loanTerm} onChange={v => setParams({ loanTerm: Math.round(v) })} min={10} max={40} step={1} suffix=" yrs" />
+          }
         </div>
         <div className="flex flex-wrap gap-6">
           <Toggle label="First Home Buyer" checked={params.firstHomeBuyer} onChange={v => setParams({ firstHomeBuyer: v })} description="Stamp duty concession may apply" />
@@ -159,7 +187,7 @@ export function HouseAffordability() {
         </p>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           LVR: <span className="font-mono">{formatPct(result.lvr)}</span>
-          {' · '}Assessed at: <span className="font-mono">{formatPct(params.rate + 3)}%</span> (rate + 3% APRA buffer)
+          {' · '}Assessed at: <span className="font-mono">{formatPct(effectiveRate + 3)}%</span> (rate + 3% APRA buffer)
         </p>
       </div>
 

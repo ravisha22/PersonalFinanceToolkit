@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { StatCard } from '../../components/ui/StatCard';
 import { NumberInput } from '../../components/ui/NumberInput';
 import { SliderControl } from '../../components/ui/SliderControl';
+import { PortfolioField } from '../../components/ui/PortfolioField';
 import { calculateSuperBridge, PRESERVATION_AGE } from './engine';
 import { formatCurrency, formatCompact } from '../../utils/formatters';
 import {
@@ -13,10 +14,11 @@ interface Props {
   nonSuperBalance: number;
   superBalance: number;
   onSuperBalanceChange: (v: number) => void;
+  superBalanceLocked?: boolean;
   returnRate: number;
 }
 
-export function SuperBridge({ currentAge, nonSuperBalance, superBalance, onSuperBalanceChange, returnRate }: Props) {
+export function SuperBridge({ currentAge, nonSuperBalance, superBalance, onSuperBalanceChange, superBalanceLocked, returnRate }: Props) {
   const [earlyRetirementAge, setEarlyRetirementAge] = useState(50);
   const [annualExpenses, setAnnualExpenses] = useState(60000);
   const [annualSavingsNonSuper, setAnnualSavingsNonSuper] = useState(20000);
@@ -70,7 +72,10 @@ export function SuperBridge({ currentAge, nonSuperBalance, superBalance, onSuper
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-        <NumberInput label="Current Super Balance" value={superBalance} onChange={onSuperBalanceChange} min={0} max={5000000} step={10000} prefix="$" />
+        {superBalanceLocked
+          ? <PortfolioField label="Current Super Balance" value={superBalance} prefix="$" />
+          : <NumberInput label="Current Super Balance" value={superBalance} onChange={onSuperBalanceChange} min={0} max={5000000} step={10000} prefix="$" />
+        }
         <NumberInput label="Annual Super Contribs" value={annualSuperContribs} onChange={setAnnualSuperContribs} min={0} max={50000} step={1000} prefix="$" />
         <SliderControl label="Early Retirement Age" value={earlyRetirementAge} onChange={v => setEarlyRetirementAge(Math.round(v))} min={35} max={59} step={1} />
       </div>

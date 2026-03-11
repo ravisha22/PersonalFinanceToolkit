@@ -46,11 +46,20 @@ const ASSUMPTIONS: Record<string, string[]> = {
 
 export function TaxSavingsGuide() {
   const { portfolio } = usePortfolio();
+
+  // Override values — only used when portfolio field is empty (0)
+  const [grossSalaryOverride, setGrossSalaryOverride] = useState(85000);
+  const [investLoanBalOverride, setInvestLoanBalOverride] = useState(300000);
+  const [rateOverride, setRateOverride] = useState(6.0);
+  const [margTaxOverride, setMargTaxOverride] = useState(34.5);
+
   const [activeTab, setActiveTab] = useState('super');
-  const [grossSalary, setGrossSalary] = useState(() => portfolio.grossSalary > 0 ? portfolio.grossSalary : 85000);
-  const [investLoanBal, setInvestLoanBal] = useState(() => portfolio.mortgageBalance > 0 ? portfolio.mortgageBalance : 300000);
-  const [rate, setRate] = useState(() => portfolio.mortgageRate > 0 ? portfolio.mortgageRate : 6.0);
-  const [margTax, setMargTax] = useState(() => portfolio.margTax > 0 ? portfolio.margTax : 34.5);
+
+  // Effective values: portfolio wins when non-zero
+  const grossSalary = portfolio.grossSalary > 0 ? portfolio.grossSalary : grossSalaryOverride;
+  const investLoanBal = portfolio.mortgageBalance > 0 ? portfolio.mortgageBalance : investLoanBalOverride;
+  const rate = portfolio.mortgageRate > 0 ? portfolio.mortgageRate : rateOverride;
+  const margTax = portfolio.margTax > 0 ? portfolio.margTax : margTaxOverride;
 
   return (
     <div className="space-y-6">
@@ -65,7 +74,7 @@ export function TaxSavingsGuide() {
         </p>
       </div>
 
-      <AboutCalc concepts={[
+      <AboutCalc title="About this guide" concepts={[
         {
           term: 'What is salary sacrifice to superannuation?',
           definition: 'You ask your employer to redirect part of your pre-tax salary into super. That money is taxed at 15% (the super contribution rate) instead of your marginal income tax rate. If you earn $85k, your marginal rate is ~34.5% — so sacrificing $10,000 saves $1,950 in tax, subject to the $30,000 annual concessional cap.',
@@ -92,17 +101,17 @@ export function TaxSavingsGuide() {
         {activeTab === 'super' && (
           <SuperSalarySacrifice
             grossSalary={grossSalary}
-            onGrossSalaryChange={setGrossSalary}
+            onGrossSalaryChange={setGrossSalaryOverride}
           />
         )}
         {activeTab === 'dr' && (
           <DebtRecyclingTax
             investLoanBal={investLoanBal}
-            onInvestLoanBalChange={setInvestLoanBal}
+            onInvestLoanBalChange={setInvestLoanBalOverride}
             rate={rate}
-            onRateChange={setRate}
+            onRateChange={setRateOverride}
             margTax={margTax}
-            onMargTaxChange={setMargTax}
+            onMargTaxChange={setMargTaxOverride}
           />
         )}
         {activeTab === 'negear' && <NegativeGearing />}

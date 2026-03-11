@@ -3,20 +3,21 @@ import { useState } from 'react';
 export interface ConceptDef {
   term: string;
   definition: string;
-  link: string;
-  linkLabel: string;
+  link?: string;
+  linkLabel?: string;
 }
 
 interface AboutCalcProps {
   concepts: ConceptDef[];
   defaultOpen?: boolean;
+  title?: string;
 }
 
 /**
- * Collapsible "About this calculator" panel shown at the top of each calculator.
+ * Collapsible info panel shown at the top of each tool.
  * Explains key terms in plain English, each with a link to a reputable free source.
  */
-export function AboutCalc({ concepts, defaultOpen = false }: AboutCalcProps) {
+export function AboutCalc({ concepts, defaultOpen = false, title = 'About this calculator' }: AboutCalcProps) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
@@ -26,7 +27,7 @@ export function AboutCalc({ concepts, defaultOpen = false }: AboutCalcProps) {
         className="w-full flex items-center justify-between px-5 py-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-left"
       >
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          About this calculator
+          {title}
         </span>
         <span className="text-slate-400 text-sm">{open ? '▲' : '▼'}</span>
       </button>
@@ -41,6 +42,7 @@ export function AboutCalc({ concepts, defaultOpen = false }: AboutCalcProps) {
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-1">
                 {c.definition}
               </p>
+              {c.link && (
               <a
                 href={c.link}
                 target="_blank"
@@ -49,6 +51,7 @@ export function AboutCalc({ concepts, defaultOpen = false }: AboutCalcProps) {
               >
                 Learn more — {c.linkLabel} ↗
               </a>
+              )}
             </div>
           ))}
         </div>

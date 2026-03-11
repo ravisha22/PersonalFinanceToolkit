@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { SliderControl } from '../../components/ui/SliderControl';
 import { NumberInput } from '../../components/ui/NumberInput';
+import { PortfolioField } from '../../components/ui/PortfolioField';
 import { StatCard } from '../../components/ui/StatCard';
 import { Assumptions } from '../../components/shared/Assumptions';
 import { Disclaimer } from '../../components/shared/Disclaimer';
@@ -34,33 +35,28 @@ const ASSUMPTIONS = [
 
 export function InvestmentCompare() {
   const { portfolio } = usePortfolio();
-  const [scenarios, setScenarios] = useState<ScenarioParams[]>(() => [
-    {
-      ...DEFAULT_SCENARIOS[0],
-      initial: portfolio.etfValue > 0 ? portfolio.etfValue : DEFAULT_SCENARIOS[0].initial,
-      monthlyContribution: portfolio.monthlyEtfContrib > 0 ? portfolio.monthlyEtfContrib : DEFAULT_SCENARIOS[0].monthlyContribution,
-    },
-    {
-      ...DEFAULT_SCENARIOS[1],
-      initial: portfolio.superBalance > 0 ? portfolio.superBalance : DEFAULT_SCENARIOS[1].initial,
-      monthlyContribution: portfolio.monthlySuperContrib > 0 ? portfolio.monthlySuperContrib : DEFAULT_SCENARIOS[1].monthlyContribution,
-    },
-    {
-      ...DEFAULT_SCENARIOS[2],
-      initial: portfolio.savingsBalance > 0 ? portfolio.savingsBalance : DEFAULT_SCENARIOS[2].initial,
-      monthlyContribution: portfolio.monthlySavingsContrib > 0 ? portfolio.monthlySavingsContrib : DEFAULT_SCENARIOS[2].monthlyContribution,
-    },
-  ]);
+  const [scenarios, setScenarios] = useState<ScenarioParams[]>(DEFAULT_SCENARIOS.map(s => ({ ...s })));
   const [years, setYears] = useState(20);
-  const [sharedMarginalRate, setSharedMarginalRate] = useState(() => portfolio.margTax > 0 ? portfolio.margTax : 32);
+  const [margTaxOverride, setMargTaxOverride] = useState(32);
+
+  const sharedMarginalRate = portfolio.margTax > 0 ? portfolio.margTax : margTaxOverride;
+
+  // Portfolio-locked values for scenarios 0–2 (ETF, Super, Savings)
+  const portfolioInitials = [portfolio.etfValue, portfolio.superBalance, portfolio.savingsBalance];
+  const portfolioMonthly = [portfolio.monthlyEtfContrib, portfolio.monthlySuperContrib, portfolio.monthlySavingsContrib];
 
   const updateScenario = (i: number, updates: Partial<ScenarioParams>) => {
     setScenarios(prev => prev.map((s, idx) => idx === i ? { ...s, ...updates } : s));
   };
 
   const syncedScenarios = useMemo(
-    () => scenarios.map(s => ({ ...s, marginalRate: sharedMarginalRate / 100 })),
-    [scenarios, sharedMarginalRate],
+    () => scenarios.map((s, i) => ({
+      ...s,
+      initial: i < 3 && portfolioInitials[i] > 0 ? portfolioInitials[i] : s.initial,
+      monthlyContribution: i < 3 && portfolioMonthly[i] > 0 ? portfolioMonthly[i] : s.monthlyContribution,
+      marginalRate: sharedMarginalRate / 100,
+    })),
+    [scenarios, sharedMarginalRate, portfolioInitials, portfolioMonthly],
   );
 
   const results = useMemo(
@@ -121,7 +117,10 @@ export function InvestmentCompare() {
       {/* Shared settings */}
       <div className="grid grid-cols-2 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
         <SliderControl label="Time Horizon" value={years} onChange={v => setYears(Math.round(v))} min={1} max={40} step={1} suffix=" yrs" />
-        <SliderControl label="Marginal Tax Rate (shared)" value={sharedMarginalRate} onChange={setSharedMarginalRate} min={0} max={49} step={1} suffix="%" />
+        {portfolio.margTax > 0
+          ? <PortfolioField label="Marginal Tax Rate (shared)" value={sharedMarginalRate} suffix="%" />
+          : <SliderControl label="Marginal Tax Rate (shared)" value={margTaxOverride} onChange={setMargTaxOverride} min={0} max={49} step={1} suffix="%" />
+        }
       </div>
 
       {/* Scenario cards */}
@@ -140,8 +139,14 @@ export function InvestmentCompare() {
               )}
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <NumberInput label="Initial" value={s.initial} onChange={v => updateScenario(i, { initial: v })} min={0} max={5000000} step={1000} prefix="$" />
-              <NumberInput label="Monthly Contribution" value={s.monthlyContribution} onChange={v => updateScenario(i, { monthlyContribution: v })} min={0} max={10000} step={100} prefix="$" />
+              {i < 3 && portfolioInitials[i] > 0
+                ? <PortfolioField label="Initial" value={portfolioInitials[i]} prefix="$" />
+                : <NumberInput label="Initial" value={s.initial} onChange={v => updateScenario(i, { initial: v })} min={0} max={5000000} step={1000} prefix="$" />
+              }
+              {i < 3 && portfolioMonthly[i] > 0
+                ? <PortfolioField label="Monthly Contribution" value={portfolioMonthly[i]} prefix="$" />
+                : <NumberInput label="Monthly Contribution" value={s.monthlyContribution} onChange={v => updateScenario(i, { monthlyContribution: v })} min={0} max={10000} step={100} prefix="$" />
+              }
               <SliderControl label="Annual Return" value={s.annualReturn} onChange={v => updateScenario(i, { annualReturn: v })} min={0} max={20} step={0.5} suffix="%" />
               <SliderControl label="MER" value={s.mer} onChange={v => updateScenario(i, { mer: v })} min={0} max={3} step={0.05} suffix="%" />
             </div>

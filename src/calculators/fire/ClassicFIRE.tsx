@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { StatCard } from '../../components/ui/StatCard';
 import { SliderControl } from '../../components/ui/SliderControl';
 import { NumberInput } from '../../components/ui/NumberInput';
+import { PortfolioField } from '../../components/ui/PortfolioField';
 import { calculateFIRENumber, yearsToFIRE, projectSavings } from './engine';
 import { formatCurrency, formatCompact } from '../../utils/formatters';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
@@ -11,16 +12,18 @@ interface Props {
   onCurrentAgeChange: (v: number) => void;
   currentInvestments: number;
   onCurrentInvestmentsChange: (v: number) => void;
+  investmentsLocked?: boolean;
   annualSavings: number;
   onAnnualSavingsChange: (v: number) => void;
+  annualSavingsLocked?: boolean;
   returnRate: number;
   onReturnRateChange: (v: number) => void;
 }
 
 export function ClassicFIRE({
   currentAge, onCurrentAgeChange,
-  currentInvestments, onCurrentInvestmentsChange,
-  annualSavings, onAnnualSavingsChange,
+  currentInvestments, onCurrentInvestmentsChange, investmentsLocked,
+  annualSavings, onAnnualSavingsChange, annualSavingsLocked,
   returnRate, onReturnRateChange,
 }: Props) {
   const [annualExpenses, setAnnualExpenses] = useState(80000);
@@ -49,7 +52,6 @@ export function ClassicFIRE({
   const progress = fireNumber > 0 ? Math.min(100, (currentInvestments / fireNumber) * 100) : 0;
   const fireAge = currentAge + years;
 
-  // SWR sensitivity table
   const swrSensitivity = [3, 3.5, 4, 4.5, 5].map(rate => ({
     rate,
     fireNumber: calculateFIRENumber(annualExpenses, rate / 100),
@@ -61,8 +63,14 @@ export function ClassicFIRE({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
         <NumberInput label="Current Age" value={currentAge} onChange={v => onCurrentAgeChange(Math.round(v))} min={18} max={70} step={1} />
         <NumberInput label="Annual Expenses (Ret.)" value={annualExpenses} onChange={setAnnualExpenses} min={10000} max={500000} step={5000} prefix="$" />
-        <NumberInput label="Current Investments" value={currentInvestments} onChange={onCurrentInvestmentsChange} min={0} max={10000000} step={10000} prefix="$" />
-        <NumberInput label="Annual Savings" value={annualSavings} onChange={onAnnualSavingsChange} min={0} max={500000} step={5000} prefix="$" />
+        {investmentsLocked
+          ? <PortfolioField label="Current Investments" value={currentInvestments} prefix="$" />
+          : <NumberInput label="Current Investments" value={currentInvestments} onChange={onCurrentInvestmentsChange} min={0} max={10000000} step={10000} prefix="$" />
+        }
+        {annualSavingsLocked
+          ? <PortfolioField label="Annual Savings" value={annualSavings} prefix="$" />
+          : <NumberInput label="Annual Savings" value={annualSavings} onChange={onAnnualSavingsChange} min={0} max={500000} step={5000} prefix="$" />
+        }
       </div>
       <div className="grid grid-cols-2 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
         <SliderControl label="Investment Return (pa)" value={returnRate} onChange={onReturnRateChange} min={2} max={15} step={0.5} suffix="%" />

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useUrlParams } from '../../hooks/useUrlParams';
 import { SliderControl } from '../../components/ui/SliderControl';
 import { NumberInput } from '../../components/ui/NumberInput';
+import { PortfolioField } from '../../components/ui/PortfolioField';
 import { StatCard } from '../../components/ui/StatCard';
 import { Assumptions } from '../../components/shared/Assumptions';
 import { Disclaimer } from '../../components/shared/Disclaimer';
@@ -56,39 +57,45 @@ export function DirectVsDR() {
     years: DEFAULTS.years,
   });
 
-  const margTaxDecimal = params.margTax / 100;
   const cgtDiscountDecimal = params.cgtDiscount / 100;
 
+  // Effective values: portfolio wins over URL params when portfolio is non-zero
+  const effectiveAmount = portfolio.etfValue > 0 ? portfolio.etfValue : params.amount;
+  const effectiveEtfReturn = portfolio.etfReturn > 0 ? portfolio.etfReturn : params.etfReturn;
+  const effectiveMortgageRate = portfolio.mortgageRate > 0 ? portfolio.mortgageRate : params.mortgageRate;
+  const effectiveMargTax = portfolio.margTax > 0 ? portfolio.margTax : params.margTax;
+  const effectiveMargTaxDecimal = effectiveMargTax / 100;
+
   const breakeven = useMemo(
-    () => findBreakevenReturn(params.mortgageRate, params.margTax),
-    [params.mortgageRate, params.margTax],
+    () => findBreakevenReturn(effectiveMortgageRate, effectiveMargTax),
+    [effectiveMortgageRate, effectiveMargTax],
   );
 
   const direct = useMemo(
     () =>
       runDirectInvest(
-        params.amount,
-        params.etfReturn,
+        effectiveAmount,
+        effectiveEtfReturn,
         params.divYield,
-        margTaxDecimal,
+        effectiveMargTaxDecimal,
         cgtDiscountDecimal,
         params.years,
       ),
-    [params, margTaxDecimal, cgtDiscountDecimal],
+    [effectiveAmount, effectiveEtfReturn, params.divYield, effectiveMargTaxDecimal, cgtDiscountDecimal, params.years],
   );
 
   const dr = useMemo(
     () =>
       runDebtRecyclingStandalone(
-        params.amount,
-        params.etfReturn,
+        effectiveAmount,
+        effectiveEtfReturn,
         params.divYield,
-        params.mortgageRate,
-        margTaxDecimal,
+        effectiveMortgageRate,
+        effectiveMargTaxDecimal,
         cgtDiscountDecimal,
         params.years,
       ),
-    [params, margTaxDecimal, cgtDiscountDecimal],
+    [effectiveAmount, effectiveEtfReturn, params.divYield, effectiveMortgageRate, effectiveMargTaxDecimal, cgtDiscountDecimal, params.years],
   );
 
   const chartData = useMemo(() => {
@@ -100,7 +107,7 @@ export function DirectVsDR() {
   }, [direct, dr]);
 
   const drWins = dr.netWealthAfterCGT > direct.netWealthAfterCGT;
-  const etfAboveBreakeven = params.etfReturn > breakeven;
+  const etfAboveBreakeven = effectiveEtfReturn > breakeven;
 
   return (
     <div className="space-y-6">
@@ -139,24 +146,14 @@ export function DirectVsDR() {
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 space-y-4">
         <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Parameters</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <NumberInput
-            label="Lump Sum"
-            value={params.amount}
-            onChange={v => setParams({ amount: v })}
-            min={10000}
-            max={2000000}
-            step={10000}
-            prefix="$"
-          />
-          <SliderControl
-            label="ETF Total Return"
-            value={params.etfReturn}
-            onChange={v => setParams({ etfReturn: v })}
-            min={2}
-            max={16}
-            step={0.5}
-            suffix="%"
-          />
+          {portfolio.etfValue > 0
+            ? <PortfolioField label="Lump Sum" value={effectiveAmount} prefix="$" />
+            : <NumberInput label="Lump Sum" value={params.amount} onChange={v => setParams({ amount: v })} min={10000} max={2000000} step={10000} prefix="$" />
+          }
+          {portfolio.etfReturn > 0
+            ? <PortfolioField label="ETF Total Return" value={effectiveEtfReturn} suffix="%" decimals={1} />
+            : <SliderControl label="ETF Total Return" value={params.etfReturn} onChange={v => setParams({ etfReturn: v })} min={2} max={16} step={0.5} suffix="%" />
+          }
           <SliderControl
             label="Dividend Yield"
             value={params.divYield}
@@ -166,26 +163,16 @@ export function DirectVsDR() {
             step={0.5}
             suffix="%"
           />
-          <SliderControl
-            label="Mortgage Rate"
-            value={params.mortgageRate}
-            onChange={v => setParams({ mortgageRate: v })}
-            min={2}
-            max={12}
-            step={0.1}
-            suffix="%"
-          />
+          {portfolio.mortgageRate > 0
+            ? <PortfolioField label="Mortgage Rate" value={effectiveMortgageRate} suffix="%" decimals={1} />
+            : <SliderControl label="Mortgage Rate" value={params.mortgageRate} onChange={v => setParams({ mortgageRate: v })} min={2} max={12} step={0.1} suffix="%" />
+          }
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <SliderControl
-            label="Marginal Tax Rate"
-            value={params.margTax}
-            onChange={v => setParams({ margTax: v })}
-            min={0}
-            max={49}
-            step={1}
-            suffix="%"
-          />
+          {portfolio.margTax > 0
+            ? <PortfolioField label="Marginal Tax Rate" value={effectiveMargTax} suffix="%" decimals={1} />
+            : <SliderControl label="Marginal Tax Rate" value={params.margTax} onChange={v => setParams({ margTax: v })} min={0} max={49} step={1} suffix="%" />
+          }
           <SliderControl
             label="CGT Discount"
             value={params.cgtDiscount}
@@ -218,12 +205,12 @@ export function DirectVsDR() {
         <span className="font-bold">Breakeven ETF return:</span>{' '}
         <span className="font-mono">{formatPct(breakeven)}</span>
         {' '}
-        (= {formatPct(params.mortgageRate)} x (1 - {params.margTax}%) after-tax borrowing cost)
+        (= {formatPct(effectiveMortgageRate)} x (1 - {effectiveMargTax}%) after-tax borrowing cost)
         <br />
         <span className="text-xs mt-1 block">
           {etfAboveBreakeven
-            ? `Your ETF return of ${formatPct(params.etfReturn)} exceeds the breakeven — Debt Recycling should outperform over time.`
-            : `Your ETF return of ${formatPct(params.etfReturn)} is below the breakeven — Direct Investing may be preferable.`
+            ? `Your ETF return of ${formatPct(effectiveEtfReturn)} exceeds the breakeven — Debt Recycling should outperform over time.`
+            : `Your ETF return of ${formatPct(effectiveEtfReturn)} is below the breakeven — Direct Investing may be preferable.`
           }
         </span>
       </div>
@@ -290,7 +277,7 @@ export function DirectVsDR() {
             />
             <Legend wrapperStyle={{ fontSize: 12 }} />
             <ReferenceLine
-              y={params.amount}
+              y={effectiveAmount}
               stroke="#94a3b8"
               strokeDasharray="4 4"
             />
@@ -304,7 +291,7 @@ export function DirectVsDR() {
       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl px-5 py-3 text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
         <strong>After-tax cost of Debt Recycling leverage:</strong>{' '}
         <span className="font-mono text-blue-600 dark:text-blue-400">{formatPct(breakeven)}</span>
-        {' '}per year ({formatPct(params.mortgageRate)} x (1 - {params.margTax}%)).
+        {' '}per year ({formatPct(effectiveMortgageRate)} x (1 - {effectiveMargTax}%)).
         {' '}Total interest paid over {params.years} years:{' '}
         <span className="font-mono">{formatCurrency(dr.totalInterestPaid)}</span>,
         {' '}offset by deductions of{' '}

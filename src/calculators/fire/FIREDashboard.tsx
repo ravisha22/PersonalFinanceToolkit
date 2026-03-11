@@ -32,20 +32,24 @@ export function FIREDashboard() {
   const { portfolio } = usePortfolio();
   const [activeTab, setActiveTab] = useState('classic');
   const [currentAge, setCurrentAge] = useState(35);
-  const [currentInvestments, setCurrentInvestments] = useState(() =>
-    (portfolio.savingsBalance + portfolio.etfValue) > 0
-      ? portfolio.savingsBalance + portfolio.etfValue
-      : 200000
-  );
-  const [annualSavings, setAnnualSavings] = useState(() =>
-    portfolio.monthlySavingsContrib > 0
-      ? portfolio.monthlySavingsContrib * 12
-      : 50000
-  );
+
+  // Override values — used only when portfolio fields are empty
+  const [investmentsOverride, setInvestmentsOverride] = useState(200000);
+  const [annualSavingsOverride, setAnnualSavingsOverride] = useState(50000);
+  const [superOverride, setSuperOverride] = useState(150000);
+
   const [returnRate, setReturnRate] = useState(7);
-  const [superBalance, setSuperBalance] = useState(() =>
-    portfolio.superBalance > 0 ? portfolio.superBalance : 150000
-  );
+
+  // Effective values: portfolio wins when non-zero
+  const portfolioInvestments = portfolio.savingsBalance + portfolio.etfValue;
+  const portfolioAnnualSavings = portfolio.monthlySavingsContrib * 12;
+  const currentInvestments = portfolioInvestments > 0 ? portfolioInvestments : investmentsOverride;
+  const annualSavings = portfolioAnnualSavings > 0 ? portfolioAnnualSavings : annualSavingsOverride;
+  const superBalance = portfolio.superBalance > 0 ? portfolio.superBalance : superOverride;
+
+  const investmentsLocked = portfolioInvestments > 0;
+  const annualSavingsLocked = portfolioAnnualSavings > 0;
+  const superBalanceLocked = portfolio.superBalance > 0;
 
   return (
     <div className="space-y-6">
@@ -59,7 +63,7 @@ export function FIREDashboard() {
         </p>
       </div>
 
-      <AboutCalc concepts={[
+      <AboutCalc title="About FIRE planning" concepts={[
         {
           term: 'What is FIRE (Financial Independence, Retire Early)?',
           definition: 'A movement focused on building enough investments to live off returns without working. The core idea: save and invest a large portion of income until your portfolio generates enough passive income to cover your expenses indefinitely.',
@@ -73,8 +77,24 @@ export function FIREDashboard() {
           linkLabel: 'Wikipedia: Trinity study',
         },
         {
-          term: 'What is the Australian Super Bridge?',
-          definition: 'Australian FIRE has a complication: superannuation cannot be accessed before preservation age (currently 60). If you retire early at 50, you need enough non-super assets to fund 10 years until you can access your super. This calculator models both phases.',
+          term: 'Classic FIRE: full retirement from investments',
+          definition: 'The original FIRE model: save and invest aggressively until your portfolio covers 100% of your annual expenses at the safe withdrawal rate. You stop working entirely. Requires the largest portfolio — but gives you total freedom.',
+        },
+        {
+          term: 'Coast FIRE: invest early, coast to retirement',
+          definition: 'Reach a "coast number" early in life — a portfolio large enough that, with no further contributions, it will grow to your full FIRE number by traditional retirement age. After reaching Coast FIRE, you only need to earn enough to cover current expenses. No more saving required.',
+        },
+        {
+          term: 'Barista FIRE: part-time work covers living costs',
+          definition: 'Semi-retire with a smaller portfolio that covers the gap between your expenses and a modest part-time income. Named after the idea of working part-time at a coffee shop for income and benefits. Lower target than Classic FIRE, but requires continued part-time work.',
+        },
+        {
+          term: 'Lean vs Fat FIRE: lifestyle trade-offs',
+          definition: 'Lean FIRE targets minimal expenses (often under $40k/year) for maximum speed. Fat FIRE targets higher spending ($80k–$120k+/year) for a more comfortable lifestyle. Same maths — just different expense targets. This tab lets you compare the years-to-FIRE difference side by side.',
+        },
+        {
+          term: 'The Australian Super Bridge',
+          definition: 'Australian FIRE has a complication: superannuation cannot be accessed before preservation age (currently 60). If you retire early at 50, you need enough non-super assets to fund 10 years until you can access your super. This calculator models both phases — the bridge period and post-preservation.',
           link: 'https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/withdrawing-and-using-your-super',
           linkLabel: 'ATO: Accessing your super',
         },
@@ -88,9 +108,11 @@ export function FIREDashboard() {
             currentAge={currentAge}
             onCurrentAgeChange={setCurrentAge}
             currentInvestments={currentInvestments}
-            onCurrentInvestmentsChange={setCurrentInvestments}
+            onCurrentInvestmentsChange={setInvestmentsOverride}
+            investmentsLocked={investmentsLocked}
             annualSavings={annualSavings}
-            onAnnualSavingsChange={setAnnualSavings}
+            onAnnualSavingsChange={setAnnualSavingsOverride}
+            annualSavingsLocked={annualSavingsLocked}
             returnRate={returnRate}
             onReturnRateChange={setReturnRate}
           />
@@ -120,7 +142,8 @@ export function FIREDashboard() {
             currentAge={currentAge}
             nonSuperBalance={currentInvestments}
             superBalance={superBalance}
-            onSuperBalanceChange={setSuperBalance}
+            onSuperBalanceChange={setSuperOverride}
+            superBalanceLocked={superBalanceLocked}
             returnRate={returnRate}
           />
         )}

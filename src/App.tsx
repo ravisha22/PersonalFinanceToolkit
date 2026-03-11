@@ -1,6 +1,5 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
-import { Landing } from './pages/Landing';
 import { PortfolioProvider } from './context/PortfolioContext';
 
 // Calculators — each lazy-imported to keep initial bundle small
@@ -33,7 +32,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <Layout />,
     children: [
-      { index: true, element: <Landing /> },
+      { index: true, element: <Navigate to="/portfolio" replace /> },
       { path: 'portfolio',                  element: <Wrap><Portfolio /></Wrap> },
       { path: 'offset-vs-debt-recycling',   element: <Wrap><OffsetVsDR /></Wrap> },
       { path: 'direct-vs-debt-recycling',   element: <Wrap><DirectVsDR /></Wrap> },

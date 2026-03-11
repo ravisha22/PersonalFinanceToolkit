@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useUrlParams } from '../../hooks/useUrlParams';
 import { SliderControl } from '../../components/ui/SliderControl';
 import { NumberInput } from '../../components/ui/NumberInput';
+import { PortfolioField } from '../../components/ui/PortfolioField';
 import { StatCard } from '../../components/ui/StatCard';
 import { BarCompare } from '../../components/ui/BarCompare';
 import { Assumptions } from '../../components/shared/Assumptions';
@@ -50,6 +51,13 @@ export function OffsetVsDR() {
   const [viewYear, setViewYear] = useState<number>(params.years);
   const [drLoanType, setDrLoanType] = useState<'io' | 'pi'>('io');
 
+  // Effective values: portfolio wins over URL params when portfolio is non-zero
+  const effectiveLoan = portfolio.mortgageBalance > 0 ? portfolio.mortgageBalance : params.loan;
+  const effectiveRate = portfolio.mortgageRate > 0 ? portfolio.mortgageRate : params.rate;
+  const effectiveYears = portfolio.mortgageYearsRemaining > 0 ? portfolio.mortgageYearsRemaining : params.years;
+  const effectiveEtfReturn = portfolio.etfReturn > 0 ? portfolio.etfReturn : params.etfReturn;
+  const effectiveMargTax = portfolio.margTax > 0 ? portfolio.margTax : params.margTax;
+
   const amounts = useMemo(
     () =>
       params.amountsStr
@@ -60,19 +68,19 @@ export function OffsetVsDR() {
   );
 
   const results = useMemo(() => {
-    if (params.loan <= 0 || params.rate <= 0 || params.years <= 0) return [];
+    if (effectiveLoan <= 0 || effectiveRate <= 0 || effectiveYears <= 0) return [];
     return amounts
-      .filter(amt => amt < params.loan)
+      .filter(amt => amt < effectiveLoan)
       .map(amt => {
-        const offset = runOffset(params.loan, params.rate, params.years, amt);
+        const offset = runOffset(effectiveLoan, effectiveRate, effectiveYears, amt);
         const dr = runDebtRecycling(
-          params.loan,
-          params.rate,
-          params.years,
+          effectiveLoan,
+          effectiveRate,
+          effectiveYears,
           amt,
-          params.etfReturn,
+          effectiveEtfReturn,
           params.divYield,
-          params.margTax,
+          effectiveMargTax,
           params.cgtDiscount,
           drLoanType,
         );
@@ -83,7 +91,7 @@ export function OffsetVsDR() {
           drAdvantage: dr.netWealthPostCGT - amt,
         };
       });
-  }, [params, drLoanType]);
+  }, [params, drLoanType, effectiveLoan, effectiveRate, effectiveYears, effectiveEtfReturn, effectiveMargTax]);
 
   const sel = results.find(r => r.amount === selectedAmount) ?? results[0] ?? null;
 
@@ -116,22 +124,22 @@ export function OffsetVsDR() {
   }, [yearlyComp, viewYear]);
 
   const mPmt = useMemo(
-    () => monthlyRepayment(params.loan, params.rate, params.years),
-    [params.loan, params.rate, params.years],
+    () => monthlyRepayment(effectiveLoan, effectiveRate, effectiveYears),
+    [effectiveLoan, effectiveRate, effectiveYears],
   );
 
-  const afterTaxDRCost = (params.rate * (1 - params.margTax / 100)).toFixed(2);
+  const afterTaxDRCost = (effectiveRate * (1 - effectiveMargTax / 100)).toFixed(2);
 
   // Year selector buttons
   const yearBtns = useMemo(() => {
-    const y = params.years;
+    const y = effectiveYears;
     const btns: number[] = [];
     if (y <= 10) for (let i = 1; i <= y; i++) btns.push(i);
     else if (y <= 20) for (let i = 5; i <= y; i += 5) btns.push(i);
     else for (let i = 5; i <= y; i += 5) btns.push(i);
     if (!btns.includes(y)) btns.push(y);
     return [...new Set(btns)].sort((a, b) => a - b);
-  }, [params.years]);
+  }, [effectiveYears]);
 
   return (
     <div className="space-y-6">
@@ -142,8 +150,8 @@ export function OffsetVsDR() {
             Offset vs Debt Recycling
           </h1>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 font-mono">
-            Loan: <span className="text-slate-700 dark:text-slate-300">{formatCurrency(params.loan)}</span>
-            {' · '}Term: <span className="text-slate-700 dark:text-slate-300">{params.years} yr P&amp;I</span>
+            Loan: <span className="text-slate-700 dark:text-slate-300">{formatCurrency(effectiveLoan)}</span>
+            {' · '}Term: <span className="text-slate-700 dark:text-slate-300">{effectiveYears} yr P&amp;I</span>
             {' · '}Repayment: <span className="text-slate-700 dark:text-slate-300">{formatCurrency(mPmt)}/mo</span>
             {' · '}Debt Recycling loan: <span className="text-blue-600 dark:text-blue-400">{drLoanType === 'io' ? 'Interest-Only' : 'P&I'}</span>
             {' · '}After-tax DR cost:{' '}
@@ -219,42 +227,22 @@ export function OffsetVsDR() {
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <NumberInput
-              label="Loan Amount"
-              value={params.loan}
-              onChange={v => setParams({ loan: v })}
-              min={50000}
-              max={5000000}
-              step={5000}
-              prefix="$"
-            />
-            <SliderControl
-              label="Interest Rate"
-              value={params.rate}
-              onChange={v => setParams({ rate: v })}
-              min={2}
-              max={12}
-              step={0.1}
-              suffix="%"
-            />
-            <NumberInput
-              label="Loan Term (years)"
-              value={params.years}
-              onChange={v => setParams({ years: Math.max(1, Math.min(40, Math.round(v))) })}
-              min={1}
-              max={40}
-              step={1}
-              suffix=" yrs"
-            />
-            <SliderControl
-              label="ETF Total Return"
-              value={params.etfReturn}
-              onChange={v => setParams({ etfReturn: v })}
-              min={2}
-              max={16}
-              step={0.5}
-              suffix="%"
-            />
+            {portfolio.mortgageBalance > 0
+              ? <PortfolioField label="Loan Amount" value={effectiveLoan} prefix="$" />
+              : <NumberInput label="Loan Amount" value={params.loan} onChange={v => setParams({ loan: v })} min={50000} max={5000000} step={5000} prefix="$" />
+            }
+            {portfolio.mortgageRate > 0
+              ? <PortfolioField label="Interest Rate" value={effectiveRate} suffix="%" decimals={1} />
+              : <SliderControl label="Interest Rate" value={params.rate} onChange={v => setParams({ rate: v })} min={2} max={12} step={0.1} suffix="%" />
+            }
+            {portfolio.mortgageYearsRemaining > 0
+              ? <PortfolioField label="Loan Term (years)" value={effectiveYears} suffix=" yrs" />
+              : <NumberInput label="Loan Term (years)" value={params.years} onChange={v => setParams({ years: Math.max(1, Math.min(40, Math.round(v))) })} min={1} max={40} step={1} suffix=" yrs" />
+            }
+            {portfolio.etfReturn > 0
+              ? <PortfolioField label="ETF Total Return" value={effectiveEtfReturn} suffix="%" decimals={1} />
+              : <SliderControl label="ETF Total Return" value={params.etfReturn} onChange={v => setParams({ etfReturn: v })} min={2} max={16} step={0.5} suffix="%" />
+            }
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <SliderControl
@@ -266,15 +254,10 @@ export function OffsetVsDR() {
               step={0.5}
               suffix="%"
             />
-            <SliderControl
-              label="Marginal Tax Rate"
-              value={params.margTax}
-              onChange={v => setParams({ margTax: v })}
-              min={0}
-              max={49}
-              step={1}
-              suffix="%"
-            />
+            {portfolio.margTax > 0
+              ? <PortfolioField label="Marginal Tax Rate" value={effectiveMargTax} suffix="%" decimals={1} />
+              : <SliderControl label="Marginal Tax Rate" value={params.margTax} onChange={v => setParams({ margTax: v })} min={0} max={49} step={1} suffix="%" />
+            }
             <SliderControl
               label="CGT Discount"
               value={params.cgtDiscount}
@@ -300,8 +283,8 @@ export function OffsetVsDR() {
           </div>
           <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed border border-slate-200 dark:border-slate-700">
             <strong className="text-slate-700 dark:text-slate-300">Model: </strong>
-            Home loan {params.rate}% P&amp;I / {params.years} yr. DR invest loan IO same rate. ETF {params.etfReturn}% pa ({params.divYield}% div +{' '}
-            {(params.etfReturn - params.divYield).toFixed(1)}% growth). Tax {params.margTax}%. CGT {params.cgtDiscount}% discount.
+            Home loan {effectiveRate}% P&amp;I / {effectiveYears} yr. DR invest loan IO same rate. ETF {effectiveEtfReturn}% pa ({params.divYield}% div +{' '}
+            {(effectiveEtfReturn - params.divYield).toFixed(1)}% growth). Tax {effectiveMargTax}%. CGT {params.cgtDiscount}% discount.
           </div>
         </div>
       )}
@@ -310,33 +293,18 @@ export function OffsetVsDR() {
       {!settingsOpen && (
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-            <SliderControl
-              label="Mortgage Rate"
-              value={params.rate}
-              onChange={v => setParams({ rate: v })}
-              min={2}
-              max={12}
-              step={0.1}
-              suffix="%"
-            />
-            <SliderControl
-              label="ETF Return (pa)"
-              value={params.etfReturn}
-              onChange={v => setParams({ etfReturn: v })}
-              min={2}
-              max={16}
-              step={0.5}
-              suffix="%"
-            />
-            <SliderControl
-              label="Marginal Tax"
-              value={params.margTax}
-              onChange={v => setParams({ margTax: v })}
-              min={0}
-              max={49}
-              step={1}
-              suffix="%"
-            />
+            {portfolio.mortgageRate > 0
+              ? <PortfolioField label="Mortgage Rate" value={effectiveRate} suffix="%" decimals={1} />
+              : <SliderControl label="Mortgage Rate" value={params.rate} onChange={v => setParams({ rate: v })} min={2} max={12} step={0.1} suffix="%" />
+            }
+            {portfolio.etfReturn > 0
+              ? <PortfolioField label="ETF Return (pa)" value={effectiveEtfReturn} suffix="%" decimals={1} />
+              : <SliderControl label="ETF Return (pa)" value={params.etfReturn} onChange={v => setParams({ etfReturn: v })} min={2} max={16} step={0.5} suffix="%" />
+            }
+            {portfolio.margTax > 0
+              ? <PortfolioField label="Marginal Tax" value={effectiveMargTax} suffix="%" decimals={1} />
+              : <SliderControl label="Marginal Tax" value={params.margTax} onChange={v => setParams({ margTax: v })} min={0} max={49} step={1} suffix="%" />
+            }
           </div>
           {/* IO/PI quick toggle */}
           <div className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3">
@@ -371,7 +339,7 @@ export function OffsetVsDR() {
                   'Amount',
                   'Offset Interest Saved',
                   'Offset Payoff',
-                  `Debt Recycling Portfolio (${params.years} yr)`,
+                  `Debt Recycling Portfolio (${effectiveYears} yr)`,
                   'Debt Recycling Tax Deductions',
                   'Debt Recycling Net Wealth',
                   'Offset Net Wealth',
@@ -452,7 +420,7 @@ export function OffsetVsDR() {
                 ['Interest Saved vs No Offset', formatCurrency(sel.offset.interestSaved)],
                 ['Loan Payoff Time', `${sel.offset.yearsToPayoff} years`],
                 ['Cash in Offset (retained)', formatCurrency(sel.amount)],
-                [`Net Wealth at ${params.years} yr`, formatCurrency(sel.amount)],
+                [`Net Wealth at ${effectiveYears} yr`, formatCurrency(sel.amount)],
                 ['Tax Benefit', '$0 (no deduction)'],
               ] as [string, string][]).map(([k, v]) => (
                 <div key={k} className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1.5 last:border-0">
@@ -474,7 +442,7 @@ export function OffsetVsDR() {
                 ['Total Interest (home + invest)', formatCurrency(sel.dr.totalInterest)],
                 ['Tax Deductions (invest interest)', formatCurrency(sel.dr.taxDeductions)],
                 ['Net Interest Cost', formatCurrency(sel.dr.netInterestCost)],
-                [`Portfolio Value at ${params.years} yr`, formatCurrency(sel.dr.portfolioValue)],
+                [`Portfolio Value at ${effectiveYears} yr`, formatCurrency(sel.dr.portfolioValue)],
                 [`CGT if Sold (${params.cgtDiscount}% discount)`, formatCurrency(sel.dr.cgtIfSold)],
                 ['Net Wealth Post-CGT', formatCurrency(sel.dr.netWealthPostCGT)],
               ] as [string, string][]).map(([k, v]) => (
